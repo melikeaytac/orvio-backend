@@ -1,0 +1,178 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ===================== USERS =====================
+model User {
+  user_id       String   @id @default(uuid())
+  first_name    String?  @db.VarChar(100)
+  last_name     String?  @db.VarChar(100)
+  email         String   @unique @db.VarChar(255)
+  password_hash String?  @db.VarChar(255)
+  role_id       String?
+  active        Boolean?
+  created_at    DateTime?
+  updated_at    DateTime?
+
+  assignedCoolers   Cooler[]            @relation("CoolerAdmin")
+  transactions     Transaction[]
+  deviceAssignments DeviceAssignment[]
+}
+
+// ===================== BRAND =====================
+model Brand {
+  brand_id   String   @id @default(uuid())
+  brand_name String   @unique @db.VarChar(255)
+  description String? @db.VarChar(255)
+
+  products      Product[]
+  productBrands ProductBrand[]
+}
+
+// ===================== PRODUCT =====================
+model Product {
+  product_id      String   @id @default(uuid())
+  name            String   @unique @db.VarChar(255)
+  brand_id        String
+  unit_price      Decimal  @db.Decimal(10, 2)
+  image_reference String?  @db.VarChar(255)
+  is_active       Boolean
+
+  brand            Brand            @relation(fields: [brand_id], references: [brand_id])
+  inventories      Inventory[]
+  transactionItems TransactionItem[]
+  productBrands    ProductBrand[]
+}
+
+// ===================== COOLER =====================
+model Cooler {
+  device_id             String   @id @default(uuid())
+  name                  String   @db.VarChar(100)
+  location_description  String?  @db.VarChar(255)
+  gps_latitude          Decimal? @db.Decimal(10, 8)
+  gps_longitude         Decimal? @db.Decimal(10, 8)
+  default_temperature   Decimal? @db.Decimal(2, 2)
+  status                String
+  last_checkin_time     DateTime
+  assigned_admin_id     String?
+  door_status           Boolean
+  shelf_count           Int
+  session_limit         Int
+
+  assignedAdmin User? @relation("CoolerAdmin", fields: [assigned_admin_id], references: [user_id])
+
+  inventories       Inventory[]
+  transactions      Transaction[]
+  telemetries       Telemetry[]
+  alerts            Alert[]
+  deviceAssignments DeviceAssignment[]
+}
+
+// ===================== INVENTORY (COMPOSITE PK) =====================
+model Inventory {
+  device_id          String
+  product_id         String
+  current_stock      Int
+  critic_stock       Int
+  last_stock_update  DateTime
+
+  device  Cooler  @relation(fields: [device_id], references: [device_id])
+  product Product @relation(fields: [product_id], references: [product_id])
+
+  @@id([device_id, product_id])
+}
+
+// ===================== TRANSACTION =====================
+model Transaction {
+  transaction_id   String   @id @default(uuid())
+  user_id          String?
+  device_id        String
+  start_time       DateTime
+  end_time         DateTime?
+  is_active        Boolean
+  status           String
+  transaction_type String?
+
+  user   User?   @relation(fields: [user_id], references: [user_id])
+  device Cooler  @relation(fields: [device_id], references: [device_id])
+
+  items TransactionItem[]
+}
+
+// ===================== TRANSACTION ITEM =====================
+model TransactionItem {
+  transaction_item_id String   @id @default(uuid())
+  transaction_id      String
+  product_id          String
+  quantity            Int
+  action_type         String
+  timestamp           DateTime
+  unit_price_at_sale  Decimal  @db.Decimal(10, 2)
+
+  transaction Transaction @relation(fields: [transaction_id], references: [transaction_id])
+  product     Product     @relation(fields: [product_id], references: [product_id])
+}
+
+// ===================== TELEMETRY =====================
+model Telemetry {
+  telemetry_id          String   @id @default(uuid())
+  device_id             String
+  timestamp             DateTime
+  internal_temperature  Decimal  @db.Decimal(5, 2)
+  gps_latitude           Decimal? @db.Decimal(10, 8)
+  gps_longitude          Decimal? @db.Decimal(10, 8)
+  door_sensor_status     Boolean
+
+  device Cooler @relation(fields: [device_id], references: [device_id])
+}
+
+// ===================== ALERT =====================
+model Alert {
+  alert_id   String   @id @default(uuid())
+  device_id  String
+  timestamp  DateTime
+  alert_type String
+  message    String   @db.VarChar(500)
+  status     String
+
+  device Cooler @relation(fields: [device_id], references: [device_id])
+}
+
+// ===================== PRODUCT_BRAND (N-N) =====================
+model ProductBrand {
+  product_id String
+  brand_id   String
+
+  product Product @relation(fields: [product_id], references: [product_id])
+  brand   Brand   @relation(fields: [brand_id], references: [brand_id])
+
+  @@id([product_id, brand_id])
+}
+
+// ===================== DEVICE ASSIGNMENT =====================
+model DeviceAssignment {
+  assignment_id   String   @id @default(uuid())
+  device_id       String
+  admin_user_id   String
+  assigned_at     DateTime
+  unassigned_at   DateTime?
+  is_active       Boolean
+
+  device Cooler @relation(fields: [device_id], references: [device_id])
+  admin  User   @relation(fields: [admin_user_id], references: [user_id])
+}
+
+// ===================== SYSTEM LOG =====================
+model SystemLog {
+  log_id        String   @id @default(uuid())
+  title         String   @db.VarChar(255)
+  message       String
+  level         String   @db.VarChar(50)
+  log_date      DateTime @db.Timestamptz
+  relational_id String?
+}
