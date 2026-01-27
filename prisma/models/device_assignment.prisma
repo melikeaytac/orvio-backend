@@ -1,0 +1,15 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model DeviceAssignment {
+  assignment_id  String   @id @default(uuid())
+  device_id      String
+  admin_user_id  String
+  assigned_at    DateTime
+  unassigned_at  DateTime?
+  is_active      Boolean
+
+  device Cooler @relation(fields: [device_id], references: [device_id])
+  admin  User   @relation(fields: [admin_user_id], references: [user_id])
+
+  @@index([device_id])
+  @@index([admin_user_id])
+}

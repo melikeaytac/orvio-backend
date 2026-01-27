@@ -1,0 +1,16 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model TransactionItem {
+  transaction_item_id String   @id @default(uuid())
+  transaction_id      String
+  product_id          String
+  quantity            Int
+  action_type         String
+  timestamp           DateTime
+  unit_price_at_sale  Decimal  @db.Decimal(10, 2)
+
+  transaction Transaction @relation(fields: [transaction_id], references: [transaction_id])
+  product     Product     @relation(fields: [product_id], references: [product_id])
+
+  @@index([transaction_id])
+  @@index([product_id])
+}

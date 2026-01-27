@@ -1,0 +1,19 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model Transaction {
+  transaction_id   String   @id @default(uuid())
+  user_id          String?
+  device_id        String
+  start_time       DateTime
+  end_time         DateTime?
+  is_active        Boolean
+  status           String
+  transaction_type String?
+
+  user   User?   @relation(fields: [user_id], references: [user_id])
+  device Cooler  @relation(fields: [device_id], references: [device_id])
+
+  items TransactionItem[]
+
+  @@index([user_id])
+  @@index([device_id])
+}

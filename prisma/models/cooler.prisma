@@ -1,0 +1,25 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model Cooler {
+  device_id             String   @id @default(uuid())
+  name                  String   @db.VarChar(100)
+  location_description  String?  @db.VarChar(255)
+  gps_latitude          Decimal? @db.Decimal(10, 8)
+  gps_longitude         Decimal? @db.Decimal(10, 8)
+  default_temperature   Decimal? @db.Decimal(2, 2)
+  status                String
+  last_checkin_time     DateTime
+  assigned_admin_id     String?
+  door_status           Boolean
+  shelf_count           Int
+  session_limit         Int
+
+  assignedAdmin User? @relation("CoolerAdmin", fields: [assigned_admin_id], references: [user_id])
+
+  inventories       Inventory[]
+  transactions      Transaction[]
+  telemetries       Telemetry[]
+  alerts            Alert[]
+  deviceAssignments DeviceAssignment[]
+
+  @@index([assigned_admin_id])
+}
