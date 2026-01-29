@@ -1,0 +1,14 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model Alert {
+  alert_id   String   @id @default(uuid())
+  device_id  String
+  timestamp  DateTime
+  alert_type String
+  message    String   @db.VarChar(500)
+  status     String
+
+  device Cooler @relation(fields: [device_id], references: [device_id])
+
+  @@index([device_id])
+  @@index([status])
+}

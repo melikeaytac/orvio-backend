@@ -1,0 +1,12 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model SystemLog {
+  log_id        String   @id @default(uuid())
+  title         String   @db.VarChar(255)
+  message       String
+  level         String   @db.VarChar(50)
+  log_date      DateTime @db.Timestamptz
+  relational_id String?
+
+  @@index([level])
+  @@index([log_date])
+}

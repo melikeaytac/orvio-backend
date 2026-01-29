@@ -6,25 +6,21 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model Alert {
+  alert_id   String   @id @default(uuid())
+  device_id  String
+  timestamp  DateTime
+  alert_type String
+  message    String   @db.VarChar(500)
+  status     String
 
-// ===================== USERS =====================
-model User {
-  user_id       String   @id @default(uuid())
-  first_name    String?  @db.VarChar(100)
-  last_name     String?  @db.VarChar(100)
-  email         String   @unique @db.VarChar(255)
-  password_hash String?  @db.VarChar(255)
-  role_id       String?
-  active        Boolean?
-  created_at    DateTime?
-  updated_at    DateTime?
+  device Cooler @relation(fields: [device_id], references: [device_id])
 
-  assignedCoolers   Cooler[]            @relation("CoolerAdmin")
-  transactions     Transaction[]
-  deviceAssignments DeviceAssignment[]
+  @@index([device_id])
+  @@index([status])
 }
-
-// ===================== BRAND =====================
+// Extracted model fragment; Prisma CLI still needs a merged schema.
 model Brand {
   brand_id    String   @id @default(uuid())
   brand_name  String   @unique @db.VarChar(255)
@@ -33,25 +29,7 @@ model Brand {
   products      Product[]
   productBrands ProductBrand[]
 }
-
-// ===================== PRODUCT =====================
-model Product {
-  product_id      String   @id @default(uuid())
-  name            String   @unique @db.VarChar(255)
-  brand_id        String
-  unit_price      Decimal  @db.Decimal(10, 2)
-  image_reference String?  @db.VarChar(255)
-  is_active       Boolean
-
-  brand            Brand            @relation(fields: [brand_id], references: [brand_id])
-  inventories      Inventory[]
-  transactionItems TransactionItem[]
-  productBrands    ProductBrand[]
-
-  @@index([brand_id])
-}
-
-// ===================== COOLER =====================
+// Extracted model fragment; Prisma CLI still needs a merged schema.
 model Cooler {
   device_id             String   @id @default(uuid())
   name                  String   @db.VarChar(100)
@@ -76,8 +54,22 @@ model Cooler {
 
   @@index([assigned_admin_id])
 }
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model DeviceAssignment {
+  assignment_id  String   @id @default(uuid())
+  device_id      String
+  admin_user_id  String
+  assigned_at    DateTime
+  unassigned_at  DateTime?
+  is_active      Boolean
 
-// ===================== INVENTORY (COMPOSITE PK) =====================
+  device Cooler @relation(fields: [device_id], references: [device_id])
+  admin  User   @relation(fields: [admin_user_id], references: [user_id])
+
+  @@index([device_id])
+  @@index([admin_user_id])
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
 model Inventory {
   device_id         String
   product_id        String
@@ -91,8 +83,61 @@ model Inventory {
   @@id([device_id, product_id])
   @@index([product_id])
 }
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model Product {
+  product_id      String   @id @default(uuid())
+  name            String   @unique @db.VarChar(255)
+  brand_id        String
+  unit_price      Decimal  @db.Decimal(10, 2)
+  image_reference String?  @db.VarChar(255)
+  is_active       Boolean
 
-// ===================== TRANSACTION =====================
+  brand            Brand            @relation(fields: [brand_id], references: [brand_id])
+  inventories      Inventory[]
+  transactionItems TransactionItem[]
+  productBrands    ProductBrand[]
+
+  @@index([brand_id])
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model ProductBrand {
+  product_id String
+  brand_id   String
+
+  product Product @relation(fields: [product_id], references: [product_id])
+  brand   Brand   @relation(fields: [brand_id], references: [brand_id])
+
+  @@id([product_id, brand_id])
+  @@index([brand_id])
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model SystemLog {
+  log_id        String   @id @default(uuid())
+  title         String   @db.VarChar(255)
+  message       String
+  level         String   @db.VarChar(50)
+  log_date      DateTime @db.Timestamptz
+  relational_id String?
+
+  @@index([level])
+  @@index([log_date])
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model Telemetry {
+  telemetry_id         String   @id @default(uuid())
+  device_id            String
+  timestamp            DateTime
+  internal_temperature Decimal  @db.Decimal(5, 2)
+  gps_latitude         Decimal? @db.Decimal(10, 8)
+  gps_longitude        Decimal? @db.Decimal(10, 8)
+  door_sensor_status   Boolean
+
+  device Cooler @relation(fields: [device_id], references: [device_id])
+
+  @@index([device_id])
+  @@index([timestamp])
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
 model Transaction {
   transaction_id   String   @id @default(uuid())
   user_id          String?
@@ -111,8 +156,7 @@ model Transaction {
   @@index([user_id])
   @@index([device_id])
 }
-
-// ===================== TRANSACTION ITEM =====================
+// Extracted model fragment; Prisma CLI still needs a merged schema.
 model TransactionItem {
   transaction_item_id String   @id @default(uuid())
   transaction_id      String
@@ -128,75 +172,19 @@ model TransactionItem {
   @@index([transaction_id])
   @@index([product_id])
 }
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model User {
+  user_id       String   @id @default(uuid())
+  first_name    String?  @db.VarChar(100)
+  last_name     String?  @db.VarChar(100)
+  email         String   @unique @db.VarChar(255)
+  password_hash String?  @db.VarChar(255)
+  role_id       String?
+  active        Boolean?
+  created_at   DateTime?
+  updated_at    DateTime?
 
-// ===================== TELEMETRY =====================
-model Telemetry {
-  telemetry_id         String   @id @default(uuid())
-  device_id            String
-  timestamp            DateTime
-  internal_temperature Decimal  @db.Decimal(5, 2)
-  gps_latitude         Decimal? @db.Decimal(10, 8)
-  gps_longitude        Decimal? @db.Decimal(10, 8)
-  door_sensor_status   Boolean
-
-  device Cooler @relation(fields: [device_id], references: [device_id])
-
-  @@index([device_id])
-  @@index([timestamp])
-}
-
-// ===================== ALERT =====================
-model Alert {
-  alert_id   String   @id @default(uuid())
-  device_id  String
-  timestamp  DateTime
-  alert_type String
-  message    String   @db.VarChar(500)
-  status     String
-
-  device Cooler @relation(fields: [device_id], references: [device_id])
-
-  @@index([device_id])
-  @@index([status])
-}
-
-// ===================== PRODUCT_BRAND (N-N) =====================
-model ProductBrand {
-  product_id String
-  brand_id   String
-
-  product Product @relation(fields: [product_id], references: [product_id])
-  brand   Brand   @relation(fields: [brand_id], references: [brand_id])
-
-  @@id([product_id, brand_id])
-  @@index([brand_id])
-}
-
-// ===================== DEVICE ASSIGNMENT =====================
-model DeviceAssignment {
-  assignment_id  String   @id @default(uuid())
-  device_id      String
-  admin_user_id  String
-  assigned_at    DateTime
-  unassigned_at  DateTime?
-  is_active      Boolean
-
-  device Cooler @relation(fields: [device_id], references: [device_id])
-  admin  User   @relation(fields: [admin_user_id], references: [user_id])
-
-  @@index([device_id])
-  @@index([admin_user_id])
-}
-
-// ===================== SYSTEM LOG =====================
-model SystemLog {
-  log_id        String   @id @default(uuid())
-  title         String   @db.VarChar(255)
-  message       String
-  level         String   @db.VarChar(50)
-  log_date      DateTime @db.Timestamptz
-  relational_id String?
-
-  @@index([level])
-  @@index([log_date])
+  assignedCoolers   Cooler[]            @relation("CoolerAdmin")
+  transactions     Transaction[]
+  deviceAssignments DeviceAssignment[]
 }

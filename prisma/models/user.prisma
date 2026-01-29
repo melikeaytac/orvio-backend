@@ -1,0 +1,16 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model User {
+  user_id       String   @id @default(uuid())
+  first_name    String?  @db.VarChar(100)
+  last_name     String?  @db.VarChar(100)
+  email         String   @unique @db.VarChar(255)
+  password_hash String?  @db.VarChar(255)
+  role_id       String?
+  active        Boolean?
+  created_at   DateTime?
+  updated_at    DateTime?
+
+  assignedCoolers   Cooler[]            @relation("CoolerAdmin")
+  transactions     Transaction[]
+  deviceAssignments DeviceAssignment[]
+}

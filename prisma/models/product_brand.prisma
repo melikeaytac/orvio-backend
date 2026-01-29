@@ -1,0 +1,11 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model ProductBrand {
+  product_id String
+  brand_id   String
+
+  product Product @relation(fields: [product_id], references: [product_id])
+  brand   Brand   @relation(fields: [brand_id], references: [brand_id])
+
+  @@id([product_id, brand_id])
+  @@index([brand_id])
+}

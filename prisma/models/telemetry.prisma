@@ -1,0 +1,15 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model Telemetry {
+  telemetry_id         String   @id @default(uuid())
+  device_id            String
+  timestamp            DateTime
+  internal_temperature Decimal  @db.Decimal(5, 2)
+  gps_latitude         Decimal? @db.Decimal(10, 8)
+  gps_longitude        Decimal? @db.Decimal(10, 8)
+  door_sensor_status   Boolean
+
+  device Cooler @relation(fields: [device_id], references: [device_id])
+
+  @@index([device_id])
+  @@index([timestamp])
+}

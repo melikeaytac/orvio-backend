@@ -1,0 +1,9 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model Brand {
+  brand_id    String   @id @default(uuid())
+  brand_name  String   @unique @db.VarChar(255)
+  description String?  @db.VarChar(255)
+
+  products      Product[]
+  productBrands ProductBrand[]
+}
