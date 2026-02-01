@@ -1,3 +1,4 @@
+const adminService = require('../services/adminService');
 const authService = require('../services/authService');
 const { hashPassword } = require('../utils/bcrypt');
 
@@ -25,7 +26,21 @@ async function login(req, res, next) {
   }
 }
 
+async function getDevices(req, res, next) {
+  try {
+    const devices = await adminService.getAdminDevices(
+      req.adminUser.user_id,
+      req.isSystemAdmin
+    );
+    res.json(devices);
+  } catch (error) {
+    next(error);
+  }
+}
+
+
 module.exports = {
-  login
+  login,
+  getDevices,
 };
 

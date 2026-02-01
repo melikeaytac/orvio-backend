@@ -110,5 +110,56 @@ router.post('/admins', sysadminController.createAdmin);
 // PATCH /sysadmin/admins/:admin_id
 router.patch('/admins/:admin_id', sysadminController.updateAdmin);
 
+/**
+ * @swagger
+ * /sysadmin/devices:
+ *   get:
+ *     summary: List all devices
+ *     security:
+ *       - AdminToken: []
+ *     responses:
+ *       200:
+ *         description: List of devices
+ *         content:
+ *           application/json:
+ *             example:
+ *               devices:
+ *                 - device_id: "dev-0001"
+ *                   name: "Orvio Cooler #1"
+ *                   status: "ONLINE"
+ *                   session_limit: 5
+ */
+// Device management
+// GET /sysadmin/devices
+router.get('/devices', sysadminController.getAllDevices);
+
+/**
+ * @swagger
+ * /sysadmin/devices:
+ *   post:
+ *     summary: Create a new device
+ *     security:
+ *       - AdminToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             name: "New Cooler"
+ *             serial_number: "SN-123456"
+ *             location: "Store #1"
+ *     responses:
+ *       201:
+ *         description: Device created
+ *         content:
+ *           application/json:
+ *             example:
+ *               device_id: "dev-0002"
+ *               name: "Orvio Cooler #2"
+ *               location_description: "New Store"
+ */
+// POST /sysadmin/devices
+router.post('/devices', sysadminController.createDevice);
+
 module.exports = router;
 

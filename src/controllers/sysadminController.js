@@ -57,11 +57,48 @@ async function updateAdmin(req, res, next) {
   }
 }
 
+// Device management
+async function getAllDevices(req, res, next) {
+  try {
+    const devices = await sysadminService.getAllDevices();
+    res.json(devices);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function createDevice(req, res, next) {
+  try {
+    const device = await sysadminService.createDevice(req.body);
+    res.status(201).json(device);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function updateDevice(req, res, next) {
+  try {
+    const { device_id } = req.params;
+    const device = await sysadminService.updateDevice(device_id, req.body);
+    res.json(device);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Device not found',
+      });
+    }
+    next(error);
+  }
+}
 
 
 module.exports = {
   getAllAdmins,
   createAdmin,
   updateAdmin,
+  getAllDevices,
+  createDevice,
+  updateDevice,
 };
 

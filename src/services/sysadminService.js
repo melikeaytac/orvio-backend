@@ -50,10 +50,61 @@ async function updateAdmin(adminId, adminData) {
   });
 }
 
+async function getAllDevices() {
+  return prisma.cooler.findMany({
+    include: {
+      assignedAdmin: true,
+    },
+    orderBy: { name: 'asc' },
+  });
+}
+
+async function createDevice(deviceData) {
+  return prisma.cooler.create({
+    data: {
+      device_id: uuidv4(),
+      name: deviceData.name,
+      location_description: deviceData.location_description,
+      gps_latitude: deviceData.gps_latitude,
+      gps_longitude: deviceData.gps_longitude,
+      default_temperature: deviceData.default_temperature,
+      status: deviceData.status || 'ACTIVE',
+      last_checkin_time: new Date(),
+      assigned_admin_id: deviceData.assigned_admin_id,
+      door_status: false,
+      shelf_count: deviceData.shelf_count || 1,
+      session_limit: deviceData.session_limit || 1,
+    },
+  });
+}
+
+async function updateDevice(deviceId, deviceData) {
+  const updateData = {};
+  
+  if (deviceData.name !== undefined) updateData.name = deviceData.name;
+  if (deviceData.location_description !== undefined) updateData.location_description = deviceData.location_description;
+  if (deviceData.gps_latitude !== undefined) updateData.gps_latitude = deviceData.gps_latitude;
+  if (deviceData.gps_longitude !== undefined) updateData.gps_longitude = deviceData.gps_longitude;
+  if (deviceData.default_temperature !== undefined) updateData.default_temperature = deviceData.default_temperature;
+  if (deviceData.status !== undefined) updateData.status = deviceData.status;
+  if (deviceData.assigned_admin_id !== undefined) updateData.assigned_admin_id = deviceData.assigned_admin_id;
+  if (deviceData.shelf_count !== undefined) updateData.shelf_count = deviceData.shelf_count;
+  if (deviceData.session_limit !== undefined) updateData.session_limit = deviceData.session_limit;
+  
+  return prisma.cooler.update({
+    where: { device_id: deviceId },
+    data: updateData,
+  });
+}
+
+
 
 module.exports = {
   getAllAdmins,
   createAdmin,
   updateAdmin,
+  getAllDevices,
+  createDevice,
+  updateDevice,
 };
 
