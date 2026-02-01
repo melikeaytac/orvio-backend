@@ -18,6 +18,12 @@ const options = {
     ],
     components: {
       securitySchemes: {
+        DeviceToken: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'X-Device-Token',
+          description: 'Device authentication token',
+        },
         AdminToken: {
           type: 'http',
           scheme: 'bearer',

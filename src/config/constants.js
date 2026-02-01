@@ -4,6 +4,11 @@ module.exports = {
     ADMIN: 'ADMIN',
     SYSTEM_ADMIN: 'SYSTEM_ADMIN',
   },
+    DEVICE_STATUS: {
+    ACTIVE: 'ACTIVE',
+    INACTIVE: 'INACTIVE',
+    OFFLINE: 'OFFLINE',
+  },
 
   SESSION_INIT_TOKEN_EXPIRY_SECONDS: 60,
 };
