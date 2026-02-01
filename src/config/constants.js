@@ -1,0 +1,10 @@
+module.exports = {
+
+  USER_ROLE: {
+    ADMIN: 'ADMIN',
+    SYSTEM_ADMIN: 'SYSTEM_ADMIN',
+  },
+
+  SESSION_INIT_TOKEN_EXPIRY_SECONDS: 60,
+};
+
