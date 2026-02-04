@@ -1,6 +1,7 @@
 const prisma = require('../config/database');
 const { comparePassword } = require('../utils/bcrypt');
 const { generateToken } = require('../utils/jwt');
+const { USER_ROLE } = require('../config/constants');
 
 async function loginAdmin(email, password) {
   const user = await prisma.user.findUnique({
@@ -22,7 +23,7 @@ async function loginAdmin(email, password) {
   }
   
   // Check if user is admin
-  if (user.role_id !== 'ADMIN' && user.role_id !== 'SYSTEM_ADMIN') {
+  if (user.role_id !== USER_ROLE.ADMIN && user.role_id !== USER_ROLE.SYSTEM_ADMIN) {
     throw new Error('Access denied');
   }
   

@@ -1,5 +1,6 @@
 const prisma = require('../config/database');
 const jwtAuthMiddleware = require('./jwtAuth');
+const { USER_ROLE } = require('../config/constants');
 
 async function adminAuthMiddleware(req, res, next) {
   // First verify JWT
@@ -20,8 +21,8 @@ async function adminAuthMiddleware(req, res, next) {
       });
     }
     
-    // Check role - assuming role_id contains 'ADMIN' or 'SYSTEM_ADMIN'
-    const isAdmin = user.role_id === 'ADMIN' || user.role_id === 'SYSTEM_ADMIN';
+
+    const isAdmin = user.role_id === USER_ROLE.ADMIN || user.role_id === USER_ROLE.SYSTEM_ADMIN;
     
     if (!isAdmin) {
       return res.status(403).json({
@@ -31,8 +32,9 @@ async function adminAuthMiddleware(req, res, next) {
     }
     
     req.adminUser = user;
-    req.isSystemAdmin = user.role_id === 'SYSTEM_ADMIN';
+    req.isSystemAdmin = user.role_id === USER_ROLE.SYSTEM_ADMIN;
     next();
+
   });
 }
 

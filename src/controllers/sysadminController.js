@@ -1,4 +1,5 @@
 const sysadminService = require('../services/sysadminService');
+const { USER_ROLE } = require('../config/constants');
 
 // Admin management
 async function getAllAdmins(req, res, next) {
@@ -26,7 +27,7 @@ async function createAdmin(req, res, next) {
       last_name,
       email,
       password,
-      role_id: role_id || 'ADMIN',
+      role_id: role_id || USER_ROLE.ADMIN,
     });
     
     res.status(201).json(admin);
