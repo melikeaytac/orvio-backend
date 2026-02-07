@@ -1,11 +1,12 @@
 const prisma = require('../config/database');
 const { hashPassword } = require('../utils/bcrypt');
 const { v4: uuidv4 } = require('uuid');
+const { USER_ROLE } = require('../config/constants');
 
 async function getAllAdmins() {
   return prisma.user.findMany({
     where: {
-      role_id: { in: ['ADMIN', 'SYSTEM_ADMIN'] },
+      role_id: { in: [USER_ROLE.ADMIN, USER_ROLE.SYSTEM_ADMIN] },
     },
     orderBy: { email: 'asc' },
   });
@@ -21,7 +22,7 @@ async function createAdmin(adminData) {
       last_name: adminData.last_name,
       email: adminData.email,
       password_hash: passwordHash,
-      role_id: adminData.role_id || 'ADMIN',
+      role_id: adminData.role_id || USER_ROLE.ADMIN,
       active: true,
       created_at: new Date(),
       updated_at: new Date(),

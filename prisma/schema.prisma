@@ -172,16 +172,20 @@ model TransactionItem {
   @@index([transaction_id])
   @@index([product_id])
 }
-// Extracted model fragment; Prisma CLI still needs a merged schema.
+enum UserRole {
+  ADMIN
+  SYSTEM_ADMIN
+}
+
 model User {
-  user_id       String   @id @default(uuid())
-  first_name    String?  @db.VarChar(100)
-  last_name     String?  @db.VarChar(100)
-  email         String   @unique @db.VarChar(255)
-  password_hash String?  @db.VarChar(255)
-  role_id       String?
+  user_id       String    @id @default(uuid())
+  first_name    String?   @db.VarChar(100)
+  last_name     String?   @db.VarChar(100)
+  email         String    @unique @db.VarChar(255)
+  password_hash String?   @db.VarChar(255)
+  role_id       UserRole  @default(ADMIN) 
   active        Boolean?
-  created_at   DateTime?
+  created_at    DateTime?
   updated_at    DateTime?
 
   assignedCoolers   Cooler[]            @relation("CoolerAdmin")

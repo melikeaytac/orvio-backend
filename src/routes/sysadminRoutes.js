@@ -33,10 +33,11 @@ router.use((req, res, next) => {
  *           application/json:
  *             example:
  *               admins:
- *                 - user_id: "22222222-2222-2222-2222-222222222222"
+ *                 - user_id: "uuid"
  *                   first_name: "Admin"
  *                   last_name: "User"
  *                   email: "admin@orvio.com"
+ *                   role_id: "ADMIN"
  *                   active: true
  */
 // Admin management
@@ -46,29 +47,54 @@ router.get('/admins', sysadminController.getAllAdmins);
 /**
  * @swagger
  * /sysadmin/admins:
- *  post:
+ *   post:
  *     summary: Create a new admin
- *     tags: [System Admin]
+ *     tags:
+ *       - System Admin
  *     security:
  *       - AdminToken: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - first_name
+ *               - email
+ *               - password
+ *             properties:
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role_id:
+ *                 type: string
+ *                 enum:
+ *                   - ADMIN
+ *                   - SYSTEM_ADMIN
+ *                 default: ADMIN
  *           example:
- *             name: "New Admin"
- *             email: "new.admin@example.com"
+ *             first_name: "Yeni"
+ *             last_name: "Admin"
+ *             email: "yeni.admin@orvio.com"
  *             password: "password123"
+ *             role_id: "ADMIN"
  *     responses:
  *       201:
  *         description: Admin created
  *         content:
  *           application/json:
  *             example:
- *               user_id: "33333333-3333-3333-3333-333333333333"
- *               first_name: "New"
+ *               user_id: "uuid"
+ *               first_name: "Yeni"
  *               last_name: "Admin"
- *               email: "new.admin@orvio.com"
+ *               email: "yeni.admin@orvio.com"
+ *               role_id: "ADMIN"
  *               active: true
  */
 // POST /sysadmin/admins
@@ -79,7 +105,8 @@ router.post('/admins', sysadminController.createAdmin);
  * /sysadmin/admins/{admin_id}:
  *   patch:
  *     summary: Update an admin
- *     tags: [System Admin]
+ *     tags:
+ *       - System Admin
  *     security:
  *       - AdminToken: []
  *     parameters:
@@ -88,24 +115,31 @@ router.post('/admins', sysadminController.createAdmin);
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the admin
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *               active:
+ *                 type: boolean
+ *               role_id:
+ *                 type: string
+ *                 enum:
+ *                   - ADMIN
+ *                   - SYSTEM_ADMIN
  *           example:
- *             name: "Updated Admin Name"
- *             active: true
+ *             first_name: "Güncel Admin"
+ *             active: false
+ *             role_id: "SYSTEM_ADMIN"
  *     responses:
  *       200:
  *         description: Updated admin
- *         content:
- *           application/json:
- *             example:
- *               user_id: "22222222-2222-2222-2222-222222222222"
- *               first_name: "Admin"
- *               last_name: "User"
- *               active: false
  */
 // PATCH /sysadmin/admins/:admin_id
 router.patch('/admins/:admin_id', sysadminController.updateAdmin);
