@@ -38,9 +38,51 @@ async function getDevices(req, res, next) {
   }
 }
 
+async function getDeviceTelemetry(req, res, next) {
+  try {
+    const { device_id } = req.params;
+    const limit = parseInt(req.query.limit) || 100;
+    const telemetry = await adminService.getDeviceTelemetry(device_id, limit);
+    res.json(telemetry);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getDeviceAlerts(req, res, next) {
+  try {
+    const { device_id } = req.params;
+    const status = req.query.status || null;
+    const alerts = await adminService.getDeviceAlerts(device_id, status);
+    res.json(alerts);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function updateAlert(req, res, next) {
+  try {
+    const { alert_id } = req.params;
+    const { status, message } = req.body;
+    
+    const alert = await adminService.updateAlert(alert_id, status, message);
+    res.json(alert);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Alert not found',
+      });
+    }
+    next(error);
+  }
+}
 
 module.exports = {
   login,
   getDevices,
+  getDeviceTelemetry,
+  getDeviceAlerts,
+  updateAlert,
 };
 

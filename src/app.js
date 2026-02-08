@@ -29,6 +29,8 @@ const swaggerSpec = require('./config/swagger');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const sysadminRoutes = require('./routes/sysadminRoutes');
+const telemetryRoutes = require('./routes/telemetryRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -69,7 +71,8 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/auth', authRoutes); 
 app.use('/sysadmin', sysadminRoutes);
-
+app.use('/', telemetryRoutes);
+app.use('/admin', adminRoutes);
 
 // Error handler (must be last)
 //app.use(errorHandler);
