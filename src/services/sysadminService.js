@@ -98,7 +98,145 @@ async function updateDevice(deviceId, deviceData) {
   });
 }
 
+async function getAllAssignments() {
+  return prisma.deviceAssignment.findMany({
+    include: {
+      device: true,
+      admin: true,
+    },
+    orderBy: { assigned_at: 'desc' },
+  });
+}
 
+async function createAssignment(assignmentData) {
+  // Deactivate existing assignments for this device/admin
+  await prisma.deviceAssignment.updateMany({
+    where: {
+      device_id: assignmentData.device_id,
+      admin_user_id: assignmentData.admin_user_id,
+      is_active: true,
+    },
+    data: {
+      is_active: false,
+      unassigned_at: new Date(),
+    },
+  });
+  
+  return prisma.deviceAssignment.create({
+    data: {
+      assignment_id: uuidv4(),
+      device_id: assignmentData.device_id,
+      admin_user_id: assignmentData.admin_user_id,
+      assigned_at: new Date(),
+      is_active: true,
+    },
+  });
+}
+
+async function updateAssignment(assignmentId, assignmentData) {
+  const updateData = {};
+  
+  if (assignmentData.is_active !== undefined) {
+    updateData.is_active = assignmentData.is_active;
+    if (!assignmentData.is_active) {
+      updateData.unassigned_at = new Date();
+    }
+  }
+  
+  return prisma.deviceAssignment.update({
+    where: { assignment_id: assignmentId },
+    data: updateData,
+  });
+}
+
+async function getAllBrands() {
+  return prisma.brand.findMany({
+    include: {
+      _count: {
+        select: { products: true },
+      },
+    },
+    orderBy: { brand_name: 'asc' },
+  });
+}
+
+async function createBrand(brandData) {
+  return prisma.brand.create({
+    data: {
+      brand_id: uuidv4(),
+      brand_name: brandData.brand_name,
+      description: brandData.description,
+    },
+  });
+}
+
+async function updateBrand(brandId, brandData) {
+  const updateData = {};
+  
+  if (brandData.brand_name !== undefined) updateData.brand_name = brandData.brand_name;
+  if (brandData.description !== undefined) updateData.description = brandData.description;
+  
+  return prisma.brand.update({
+    where: { brand_id: brandId },
+    data: updateData,
+  });
+}
+
+async function getAllProducts() {
+  return prisma.product.findMany({
+    include: {
+      brand: true,
+    },
+    orderBy: { name: 'asc' },
+  });
+}
+
+async function createProduct(productData) {
+  return prisma.product.create({
+    data: {
+      product_id: uuidv4(),
+      name: productData.name,
+      brand_id: productData.brand_id,
+      unit_price: productData.unit_price,
+      image_reference: productData.image_reference,
+      is_active: productData.is_active !== undefined ? productData.is_active : true,
+    },
+  });
+}
+
+async function updateProduct(productId, productData) {
+  const updateData = {};
+  
+  if (productData.name !== undefined) updateData.name = productData.name;
+  if (productData.brand_id !== undefined) updateData.brand_id = productData.brand_id;
+  if (productData.unit_price !== undefined) updateData.unit_price = productData.unit_price;
+  if (productData.image_reference !== undefined) updateData.image_reference = productData.image_reference;
+  if (productData.is_active !== undefined) updateData.is_active = productData.is_active;
+  
+  return prisma.product.update({
+    where: { product_id: productId },
+    data: updateData,
+  });
+}
+
+async function getSystemLogs(filters = {}) {
+  const where = {};
+  
+  if (filters.level) where.level = filters.level;
+  if (filters.startDate) where.log_date = { gte: new Date(filters.startDate) };
+  if (filters.endDate) {
+    where.log_date = {
+      ...where.log_date,
+      lte: new Date(filters.endDate),
+    };
+  }
+  
+  return prisma.systemLog.findMany({
+    where,
+    orderBy: { log_date: 'desc' },
+    take: filters.limit || 1000,
+  });
+}
 
 module.exports = {
   getAllAdmins,
@@ -107,5 +245,15 @@ module.exports = {
   getAllDevices,
   createDevice,
   updateDevice,
+  getAllAssignments,
+  createAssignment,
+  updateAssignment,
+  getAllBrands,
+  createBrand,
+  updateBrand,
+  getAllProducts,
+  createProduct,
+  updateProduct,
+  getSystemLogs,
 };
 
