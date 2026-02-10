@@ -5,9 +5,13 @@ const { USER_ROLE } = require('../config/constants');
 async function adminAuthMiddleware(req, res, next) {
   // First verify JWT
   jwtAuthMiddleware(req, res, async () => {
-    if (!req.user) {
-      return; // jwtAuthMiddleware already sent response
-    }
+   if (!req.user) {
+  return res.status(401).json({
+    error: 'Unauthorized',
+    message: 'Invalid or missing token',
+  });
+}
+
     
     // Check if user is admin or system admin
     const user = await prisma.user.findUnique({
