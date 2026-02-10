@@ -93,6 +93,189 @@ async function updateDevice(req, res, next) {
   }
 }
 
+// Assignment management
+async function getAllAssignments(req, res, next) {
+  try {
+    const assignments = await sysadminService.getAllAssignments();
+    res.json(assignments);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function createAssignment(req, res, next) {
+  try {
+    const { device_id, admin_user_id } = req.body;
+    
+    if (!device_id || !admin_user_id) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'device_id and admin_user_id are required',
+      });
+    }
+    
+    const assignment = await sysadminService.createAssignment({
+      device_id,
+      admin_user_id,
+    });
+    
+    res.status(201).json(assignment);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function updateAssignment(req, res, next) {
+  try {
+    const { assignment_id } = req.params;
+    const assignment = await sysadminService.updateAssignment(assignment_id, req.body);
+    res.json(assignment);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Assignment not found',
+      });
+    }
+    next(error);
+  }
+}
+
+// Brand management
+async function getAllBrands(req, res, next) {
+  try {
+    const brands = await sysadminService.getAllBrands();
+    res.json(brands);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function createBrand(req, res, next) {
+  try {
+    const { brand_name, description } = req.body;
+    
+    if (!brand_name) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'brand_name is required',
+      });
+    }
+    
+    const brand = await sysadminService.createBrand({ brand_name, description });
+    res.status(201).json(brand);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(409).json({
+        error: 'Conflict',
+        message: 'Brand name already exists',
+      });
+    }
+    next(error);
+  }
+}
+
+async function updateBrand(req, res, next) {
+  try {
+    const { brand_id } = req.params;
+    const brand = await sysadminService.updateBrand(brand_id, req.body);
+    res.json(brand);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Brand not found',
+      });
+    }
+    if (error.code === 'P2002') {
+      return res.status(409).json({
+        error: 'Conflict',
+        message: 'Brand name already exists',
+      });
+    }
+    next(error);
+  }
+}
+
+// Product management
+async function getAllProducts(req, res, next) {
+  try {
+    const products = await sysadminService.getAllProducts();
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function createProduct(req, res, next) {
+  try {
+    const { name, brand_id, unit_price, image_reference, is_active } = req.body;
+    
+    if (!name || !brand_id || unit_price === undefined) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'name, brand_id, and unit_price are required',
+      });
+    }
+    
+    const product = await sysadminService.createProduct({
+      name,
+      brand_id,
+      unit_price,
+      image_reference,
+      is_active,
+    });
+    
+    res.status(201).json(product);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(409).json({
+        error: 'Conflict',
+        message: 'Product name already exists',
+      });
+    }
+    next(error);
+  }
+}
+
+async function updateProduct(req, res, next) {
+  try {
+    const { product_id } = req.params;
+    const product = await sysadminService.updateProduct(product_id, req.body);
+    res.json(product);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Product not found',
+      });
+    }
+    if (error.code === 'P2002') {
+      return res.status(409).json({
+        error: 'Conflict',
+        message: 'Product name already exists',
+      });
+    }
+    next(error);
+  }
+}
+
+// System logs
+async function getSystemLogs(req, res, next) {
+  try {
+    const filters = {
+      level: req.query.level,
+      startDate: req.query.start_date,
+      endDate: req.query.end_date,
+      limit: parseInt(req.query.limit) || 1000,
+    };
+    
+    const logs = await sysadminService.getSystemLogs(filters);
+    res.json(logs);
+  } catch (error) {
+    next(error);
+  }
+}
 
 module.exports = {
   getAllAdmins,
@@ -101,5 +284,15 @@ module.exports = {
   getAllDevices,
   createDevice,
   updateDevice,
+  getAllAssignments,
+  createAssignment,
+  updateAssignment,
+  getAllBrands,
+  createBrand,
+  updateBrand,
+  getAllProducts,
+  createProduct,
+  updateProduct,
+  getSystemLogs,
 };
 

@@ -39,4 +39,34 @@ const adminController = require('../controllers/adminController');
 
 router.post('/login', adminController.login);
 
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new admin user
+ *     tags: [Authentication]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Admin registered
+ *       409:
+ *         description: Email already registered
+ */
+router.post('/register', adminController.register);
+
 module.exports = router;
