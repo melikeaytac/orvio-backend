@@ -1,0 +1,141 @@
+const sessionService = require('../services/sessionService');
+const { idempotencyMiddleware, markAsProcessed } = require('../middleware/idempotency');
+
+async function startSession(req, res, next) {
+  try {
+    const { device_id } = req.params;
+    const { started_at, session_init_token, transaction_type } = req.body;
+    
+    if (!started_at) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'started_at is required',
+      });
+    }
+    
+    const result = await sessionService.startSession(
+      device_id,
+      started_at,
+      session_init_token,
+      transaction_type
+    );
+    
+    res.status(201).json(result);
+  } catch (error) {
+    if (error.message === 'Active session already exists') {
+      return res.status(409).json({
+        error: 'Conflict',
+        message: error.message,
+      });
+    }
+    if (error.message === 'Device not active') {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: error.message,
+      });
+    }
+    next(error);
+  }
+}
+
+async function addInteraction(req, res, next) {
+  try {
+    const { device_id, transaction_id } = req.params;
+    const { events } = req.body;
+    
+    if (!events || !Array.isArray(events) || events.length === 0) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'events array is required',
+      });
+    }
+    
+    // Validate each event has required fields
+    for (const event of events) {
+      if (!event.event_id || !event.product_id || !event.action_type || !event.timestamp) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Each event must have event_id, product_id, action_type, and timestamp',
+        });
+      }
+    }
+    
+    const result = await sessionService.addInteraction(device_id, transaction_id, events);
+    
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Transaction not found' || 
+        error.message === 'Transaction device mismatch' ||
+        error.message === 'Transaction not active') {
+      return res.status(409).json({
+        error: 'Conflict',
+        message: error.message,
+      });
+    }
+    next(error);
+  }
+}
+
+async function getCart(req, res, next) {
+  try {
+    const { transaction_id } = req.params;
+    const result = await sessionService.getCart(transaction_id);
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Transaction not found') {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: error.message,
+      });
+    }
+    next(error);
+  }
+}
+
+async function endSession(req, res, next) {
+  try {
+    const { device_id, transaction_id } = req.params;
+    const { ended_at } = req.body;
+    
+    if (!ended_at) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'ended_at is required',
+      });
+    }
+    
+    const result = await sessionService.endSession(device_id, transaction_id, ended_at);
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Transaction not found' || 
+        error.message === 'Transaction device mismatch' ||
+        error.message === 'Transaction not active') {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: error.message,
+      });
+    }
+    next(error);
+  }
+}
+
+async function getCurrentSession(req, res, next) {
+  try {
+    const { device_id } = req.params;
+    const sessionInitToken = req.headers['x-session-init-token'];
+    
+    const result = await sessionService.getCurrentSession(device_id, sessionInitToken);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = {
+  startSession,
+  addInteraction,
+  getCart,
+  endSession,
+  getCurrentSession,
+};
+
