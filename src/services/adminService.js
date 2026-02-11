@@ -186,8 +186,5 @@ module.exports = {
   getDisputedTransactions,
   findUserByEmail,
   createAdminUser,
-  getDeviceTelemetry,
-  getDeviceAlerts,
-  updateAlert,
 };
 
