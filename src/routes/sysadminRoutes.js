@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sysadminController = require('../controllers/sysadminController');
 const adminAuth = require('../middleware/adminAuth');
-
+const transactionController = require('../controllers/transactionController'); 
 
 // All routes below require system admin authentication
 router.use(adminAuth);
@@ -194,6 +194,41 @@ router.get('/devices', sysadminController.getAllDevices);
  */
 // POST /sysadmin/devices
 router.post('/devices', sysadminController.createDevice);
+
+/**
+ * @swagger
+ * /sysadmin/transactions/{transaction_id}/inventory/apply:
+ *   post:
+ *     summary: Manually apply inventory changes for a transaction
+ *     tags: [System Admin]
+ *     security:
+ *       - AdminToken: []
+ *     parameters:
+ *       - in: path
+ *         name: transaction_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the transaction
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           example:
+ *             force: true
+ *             note: "Re-applying after reconciliation."
+ *     responses:
+ *       200:
+ *         description: Inventory applied
+ *         content:
+ *           application/json:
+ *             example:
+ *               transaction_id: "7f2c4d9e-0000-0000-0000-000000000001"
+ *               applied: true
+ */
+// Transaction inventory apply (System Admin only)
+// POST /sysadmin/transactions/:transaction_id/inventory/apply
+router.post('/transactions/:transaction_id/inventory/apply', transactionController.applyInventoryManually);
 
 module.exports = router;
 
