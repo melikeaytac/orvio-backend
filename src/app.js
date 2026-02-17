@@ -32,6 +32,11 @@ const sysadminRoutes = require('./routes/sysadminRoutes');
 const telemetryRoutes = require('./routes/telemetryRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const deviceRoutes = require('./routes/deviceRoutes');
+const brandRoutes = require('./routes/brandRoutes');
+const productRoutes = require('./routes/productRoutes');
+const alertRoutes = require('./routes/alertRoutes');
+const disputeRoutes = require('./routes/disputeRoutes');
 
 const app = express();
 
@@ -71,10 +76,15 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/auth', authRoutes); 
-app.use('/sysadmin', sysadminRoutes);
+app.use('/', sysadminRoutes);
 app.use('/', telemetryRoutes);
 app.use('/admin', adminRoutes);
 app.use('/', transactionRoutes);
+app.use('/devices', deviceRoutes);
+app.use('/brands', brandRoutes);
+app.use('/products', productRoutes);
+app.use('/alerts', alertRoutes);
+app.use('/disputes', disputeRoutes);
 
 // Error handler (must be last)
 //app.use(errorHandler);
