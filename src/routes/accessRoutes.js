@@ -7,6 +7,7 @@ const accessController = require('../controllers/accessController');
  * /access/qr:
  *   post:
  *     summary: Process QR code for access
+ *     tags: [Access QR]
  *     security: []
  *     requestBody:
  *       required: true

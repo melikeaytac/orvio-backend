@@ -1,8 +1,36 @@
 const express = require('express');
 const router = express.Router();
 const transactionController = require('../controllers/transactionController');
+const adminAuth = require('../middleware/adminAuth');
 const { idempotencyMiddleware } = require('../middleware/idempotency');
 
+/**
+ * @swagger
+ * /transactions/{transaction_id}:
+ *   get:
+ *     summary: Get a specific transaction (role-based access in service layer)
+ *     tags: [Transactions]
+ *     security:
+ *       - AdminToken: []
+ *     parameters:
+ *       - in: path
+ *         name: transaction_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the transaction
+ *     responses:
+ *       200:
+ *         description: Transaction details
+ *         content:
+ *           application/json:
+ *             example:
+ *               transaction_id: "7f2c4d9e-0000-0000-0000-000000000001"
+ *               user_id: "11111111-1111-1111-1111-111111111111"
+ *               device_id: "dev-0001"
+ *               status: "COMPLETED"
+ */
+router.get('/transactions/:transaction_id', adminAuth, transactionController.getTransaction);
 
 /**
  * @swagger

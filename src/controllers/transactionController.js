@@ -143,10 +143,39 @@ async function applyInventoryManually(req, res, next) {
   }
 }
 
+async function getTransaction(req, res, next) {
+  try {
+    const { transaction_id } = req.params;
+    const transaction = await transactionService.getTransactionDetails(
+      transaction_id,
+      req.adminUser.user_id,
+      req.isSystemAdmin
+    );
+    
+    if (!transaction) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Transaction not found',
+      });
+    }
+    
+    res.json(transaction);
+  } catch (error) {
+    if (error.message === 'Access denied') {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: error.message,
+      });
+    }
+    next(error);
+  }
+}
+
 module.exports = {
   getTransactionSummary,
   confirmTransaction,
   disputeTransaction,
   applyInventoryManually,
+  getTransaction,
 };
 

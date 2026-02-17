@@ -21,7 +21,7 @@ router.use((req, res, next) => {
 
 /**
  * @swagger
- * /sysadmin/admins:
+ * /admins:
  *   get:
  *     summary: List all admins
  *     tags: [System Admin]
@@ -47,11 +47,10 @@ router.get('/admins', sysadminController.getAllAdmins);
 
 /**
  * @swagger
- * /sysadmin/admins:
+ * /admins:
  *   post:
  *     summary: Create a new admin
- *     tags:
- *       - System Admin
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     requestBody:
@@ -103,11 +102,10 @@ router.post('/admins', sysadminController.createAdmin);
 
 /**
  * @swagger
- * /sysadmin/admins/{admin_id}:
+ * /admins/{admin_id}:
  *   patch:
  *     summary: Update an admin
- *     tags:
- *       - System Admin
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     parameters:
@@ -145,34 +143,14 @@ router.post('/admins', sysadminController.createAdmin);
 // PATCH /sysadmin/admins/:admin_id
 router.patch('/admins/:admin_id', sysadminController.updateAdmin);
 
-/**
- * @swagger
- * /sysadmin/devices:
- *   get:
- *     summary: List all devices
- *     security:
- *       - AdminToken: []
- *     responses:
- *       200:
- *         description: List of devices
- *         content:
- *           application/json:
- *             example:
- *               devices:
- *                 - device_id: "dev-0001"
- *                   name: "Orvio Cooler #1"
- *                   status: "ONLINE"
- *                   session_limit: 5
- */
-// Device management
-// GET /sysadmin/devices
-router.get('/devices', sysadminController.getAllDevices);
+
 
 /**
  * @swagger
- * /sysadmin/devices:
+ * /devices:
  *   post:
  *     summary: Create a new device
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     requestBody:
@@ -198,32 +176,10 @@ router.post('/devices', sysadminController.createDevice);
 
 /**
  * @swagger
- * /sysadmin/devices:
- *   get:
- *     summary: List all devices
- *     security:
- *       - AdminToken: []
- *     responses:
- *       200:
- *         description: List of devices
- *         content:
- *           application/json:
- *             example:
- *               devices:
- *                 - device_id: "dev-0001"
- *                   name: "Orvio Cooler #1"
- *                   status: "ONLINE"
- *                   session_limit: 5
- */
-// Device management
-// GET /sysadmin/devices
-router.get('/devices', sysadminController.getAllDevices);
-
-/**
- * @swagger
- * /sysadmin/devices:
+ * /devices:
  *   post:
  *     summary: Create a new device
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     requestBody:
@@ -249,9 +205,10 @@ router.post('/devices', sysadminController.createDevice);
 
 /**
  * @swagger
- * /sysadmin/devices/{device_id}:
+ * /devices/{device_id}:
  *   patch:
  *     summary: Update a device
+ *     tags: [System Admin]
  *     parameters:
  *       - in: path
  *         name: device_id
@@ -281,9 +238,10 @@ router.patch('/devices/:device_id', sysadminController.updateDevice);
 
 /**
  * @swagger
- * /sysadmin/assignments:
+ * /assignments:
  *   get:
  *     summary: List all device assignments
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     responses:
@@ -303,9 +261,10 @@ router.get('/assignments', sysadminController.getAllAssignments);
 
 /**
  * @swagger
- * /sysadmin/assignments:
+ * /assignments:
  *   post:
  *     summary: Create a new assignment
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     requestBody:
@@ -330,9 +289,10 @@ router.post('/assignments', sysadminController.createAssignment);
 
 /**
  * @swagger
- * /sysadmin/assignments/{assignment_id}:
+ * /assignments/{assignment_id}:
  *   patch:
  *     summary: Update an assignment
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     parameters:
@@ -360,32 +320,13 @@ router.post('/assignments', sysadminController.createAssignment);
 // PATCH /sysadmin/assignments/:assignment_id
 router.patch('/assignments/:assignment_id', sysadminController.updateAssignment);
 
-/**
- * @swagger
- * /sysadmin/brands:
- *   get:
- *     summary: List all brands
- *     security:
- *       - AdminToken: []
- *     responses:
- *       200:
- *         description: List of brands
- *         content:
- *           application/json:
- *             example:
- *               brands:
- *                 - brand_id: "brand-0001"
- *                   brand_name: "Coca-Cola"
- */
-// Brand management
-// GET /sysadmin/brands
-router.get('/brands', sysadminController.getAllBrands);
 
 /**
  * @swagger
- * /sysadmin/brands:
+ * /brands:
  *   post:
  *     summary: Create a new brand
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     requestBody:
@@ -408,9 +349,10 @@ router.post('/brands', sysadminController.createBrand);
 
 /**
  * @swagger
- * /sysadmin/brands/{brand_id}:
+ * /brands/{brand_id}:
  *   patch:
  *     summary: Update a brand
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     parameters:
@@ -440,32 +382,10 @@ router.patch('/brands/:brand_id', sysadminController.updateBrand);
 
 /**
  * @swagger
- * /sysadmin/products:
- *   get:
- *     summary: List all products
- *     security:
- *       - AdminToken: []
- *     responses:
- *       200:
- *         description: List of products
- *         content:
- *           application/json:
- *             example:
- *               products:
- *                 - product_id: "b3e1b2a4-0000-0000-0000-000000000001"
- *                   name: "Coke 330ml"
- *                   brand_id: "brand-0001"
- *                   unit_price: 50.0
- */
-// Product management
-// GET /sysadmin/products
-router.get('/products', sysadminController.getAllProducts);
-
-/**
- * @swagger
- * /sysadmin/products:
+ * /products:
  *   post:
  *     summary: Create a new product
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     requestBody:
@@ -492,9 +412,10 @@ router.post('/products', sysadminController.createProduct);
 
 /**
  * @swagger
- * /sysadmin/products/{product_id}:
+ * /products/{product_id}:
  *   patch:
  *     summary: Update a product
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     parameters:
@@ -523,9 +444,10 @@ router.post('/products', sysadminController.createProduct);
 router.patch('/products/:product_id', sysadminController.updateProduct);
 /**
  * @swagger
- * /sysadmin/logs:
+ * /logs:
  *   get:
  *     summary: Get system logs
+ *     tags: [System Admin]
  *     security:
  *       - AdminToken: []
  *     responses:
@@ -545,7 +467,7 @@ router.get('/logs', sysadminController.getSystemLogs);
 
 /**
  * @swagger
- * /sysadmin/transactions/{transaction_id}/inventory/apply:
+ * /transactions/{transaction_id}/inventory/apply:
  *   post:
  *     summary: Manually apply inventory changes for a transaction
  *     tags: [System Admin]

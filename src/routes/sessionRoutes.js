@@ -10,6 +10,7 @@ const { idempotencyMiddleware } = require('../middleware/idempotency');
  * /devices/{device_id}/sessions/start:
  *   post:
  *     summary: Start a new session
+ *     tags: [Sessions]
  *     security:
  *       - DeviceToken: []
  *     parameters:
@@ -43,6 +44,7 @@ router.post('/devices/:device_id/sessions/start', deviceAuth, sessionController.
  * /devices/{device_id}/sessions/{transaction_id}/interactions:
  *   post:
  *     summary: Add interaction to session
+ *     tags: [Sessions]
  *     security:
  *       - DeviceToken: []
  *     parameters:
@@ -87,6 +89,7 @@ router.post(
  * /sessions/{transaction_id}/cart:
  *   get:
  *     summary: Get cart for a session
+ *     tags: [Sessions]
  *     security: []
  *     parameters:
  *       - in: path
@@ -116,6 +119,7 @@ router.get('/sessions/:transaction_id/cart', sessionController.getCart);
  * /devices/{device_id}/sessions/current:
  *   get:
  *     summary: Get current session for a device
+ *     tags: [Sessions]
  *     security: []
  *     parameters:
  *       - in: path
@@ -142,6 +146,7 @@ router.get('/devices/:device_id/sessions/current', sessionController.getCurrentS
  * /devices/{device_id}/sessions/{transaction_id}/end:
  *   post:
  *     summary: End a session
+ *     tags: [Sessions]
  *     security:
  *       - DeviceToken: []
  *     parameters:

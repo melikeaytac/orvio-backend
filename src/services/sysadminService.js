@@ -51,14 +51,6 @@ async function updateAdmin(adminId, adminData) {
   });
 }
 
-async function getAllDevices() {
-  return prisma.cooler.findMany({
-    include: {
-      assignedAdmin: true,
-    },
-    orderBy: { name: 'asc' },
-  });
-}
 
 async function createDevice(deviceData) {
   return prisma.cooler.create({
@@ -149,12 +141,40 @@ async function updateAssignment(assignmentId, assignmentData) {
   });
 }
 
-async function getAllBrands() {
-  return prisma.brand.findMany({
-    include: {
-      _count: {
-        select: { products: true },
+// sysadminService.js
+async function getAllBrands(adminUserId, isSystemAdmin) {
+  if (isSystemAdmin) {
+    // System Admin her şeyi görür
+    return prisma.brand.findMany({
+      include: {
+        _count: { select: { products: true } },
       },
+      orderBy: { brand_name: 'asc' },
+    });
+  }
+
+  // Normal Admin: Sadece kendine atanmış cihazlardaki ürünlerin markalarını görür
+  return prisma.brand.findMany({
+    where: {
+      products: {
+        some: {
+          inventories: {
+            some: {
+              device: {
+                deviceAssignments: {
+                  some: {
+                    admin_user_id: adminUserId,
+                    is_active: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    include: {
+      _count: { select: { products: true } },
     },
     orderBy: { brand_name: 'asc' },
   });
@@ -179,15 +199,6 @@ async function updateBrand(brandId, brandData) {
   return prisma.brand.update({
     where: { brand_id: brandId },
     data: updateData,
-  });
-}
-
-async function getAllProducts() {
-  return prisma.product.findMany({
-    include: {
-      brand: true,
-    },
-    orderBy: { name: 'asc' },
   });
 }
 
@@ -242,7 +253,6 @@ module.exports = {
   getAllAdmins,
   createAdmin,
   updateAdmin,
-  getAllDevices,
   createDevice,
   updateDevice,
   getAllAssignments,
@@ -251,7 +261,6 @@ module.exports = {
   getAllBrands,
   createBrand,
   updateBrand,
-  getAllProducts,
   createProduct,
   updateProduct,
   getSystemLogs,

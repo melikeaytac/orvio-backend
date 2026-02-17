@@ -58,15 +58,6 @@ async function updateAdmin(req, res, next) {
   }
 }
 
-// Device management
-async function getAllDevices(req, res, next) {
-  try {
-    const devices = await sysadminService.getAllDevices();
-    res.json(devices);
-  } catch (error) {
-    next(error);
-  }
-}
 
 async function createDevice(req, res, next) {
   try {
@@ -141,15 +132,6 @@ async function updateAssignment(req, res, next) {
   }
 }
 
-// Brand management
-async function getAllBrands(req, res, next) {
-  try {
-    const brands = await sysadminService.getAllBrands();
-    res.json(brands);
-  } catch (error) {
-    next(error);
-  }
-}
 
 async function createBrand(req, res, next) {
   try {
@@ -198,15 +180,6 @@ async function updateBrand(req, res, next) {
 }
 
 // Product management
-async function getAllProducts(req, res, next) {
-  try {
-    const products = await sysadminService.getAllProducts();
-    res.json(products);
-  } catch (error) {
-    next(error);
-  }
-}
-
 async function createProduct(req, res, next) {
   try {
     const { name, brand_id, unit_price, image_reference, is_active } = req.body;
@@ -281,16 +254,13 @@ module.exports = {
   getAllAdmins,
   createAdmin,
   updateAdmin,
-  getAllDevices,
   createDevice,
   updateDevice,
   getAllAssignments,
   createAssignment,
   updateAssignment,
-  getAllBrands,
   createBrand,
   updateBrand,
-  getAllProducts,
   createProduct,
   updateProduct,
   getSystemLogs,

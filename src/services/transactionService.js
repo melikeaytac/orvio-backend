@@ -304,10 +304,53 @@ async function applyInventoryManually(transactionId) {
   };
 }
 
+async function getTransactionDetails(transactionId, adminUserId, isSystemAdmin) {
+  const transaction = await prisma.transaction.findUnique({
+    where: { transaction_id: transactionId },
+    include: {
+      items: {
+        include: {
+          product: {
+            include: {
+              brand: true,
+            },
+          },
+        },
+      },
+      device: {
+        include: {
+          deviceAssignments: {
+            where: { is_active: true },
+          },
+        },
+      },
+      user: true,
+    },
+  });
+
+  if (!transaction) {
+    return null;
+  }
+
+  // System admin değilse, sadece kendi cihazlarının transaction'larını görebilir
+  if (!isSystemAdmin) {
+    const hasAccess = transaction.device.deviceAssignments.some(
+      (assignment) => assignment.admin_user_id === adminUserId
+    );
+
+    if (!hasAccess) {
+      throw new Error('Access denied');
+    }
+  }
+
+  return transaction;
+}
+
 module.exports = {
   getTransactionSummary,
   confirmTransaction,
   disputeTransaction,
   applyInventoryManually,
+  getTransactionDetails,
 };
 
