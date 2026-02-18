@@ -1,48 +1,66 @@
+/**
+ * Application Constants
+ * 
+ * NOTE: IDs match the fixed integer IDs in lookup tables.
+ * These are STABLE and should NEVER be changed.
+ * String values are kept for backward compatibility and readability.
+ */
+
 module.exports = {
-
+  // User Role Lookup IDs
   USER_ROLE: {
-    ADMIN: 'ADMIN',
-    SYSTEM_ADMIN: 'SYSTEM_ADMIN',
+    ADMIN: 0,
+    SYSTEM_ADMIN: 1,
   },
-    DEVICE_STATUS: {
-    ACTIVE: 'ACTIVE',
-    INACTIVE: 'INACTIVE',
-    OFFLINE: 'OFFLINE',
-  },
-  ALERT_STATUS: {
-    OPEN: 'OPEN',
-    RESOLVED: 'RESOLVED',
-    ACKNOWLEDGED: 'ACKNOWLEDGED',
-  },
-  TRANSACTION_STATUS: {
-    ACTIVE: 'ACTIVE',
-    AWAITING_USER_CONFIRMATION: 'AWAITING_USER_CONFIRMATION',
-    COMPLETED: 'COMPLETED',
-    DISPUTED: 'DISPUTED',
-    CANCELLED: 'CANCELLED',
-    FAILED: 'FAILED',
-  },
-  ACCESS_REASON: {
-    OK: 'OK',
-    DEVICE_OFFLINE: 'DEVICE_OFFLINE',
-    DEVICE_INACTIVE: 'DEVICE_INACTIVE',
-    SESSION_LIMIT_REACHED: 'SESSION_LIMIT_REACHED',
-    DOOR_ALREADY_OPEN: 'DOOR_ALREADY_OPEN',
-    ACTIVE_SESSION_EXISTS: 'ACTIVE_SESSION_EXISTS',
-  },
-  
-  ACTION_TYPE: {
-    ADD: 'ADD',
-    REMOVE: 'REMOVE',
-  },
-  
-  DISPUTE_REASON: {
-    WRONG_ITEM: 'WRONG_ITEM',
-    MISSING_ITEM: 'MISSING_ITEM',
-    OTHER: 'OTHER',
-  },
-  
 
+  // Device Status Lookup IDs
+  DEVICE_STATUS: {
+    ACTIVE: 0,
+    INACTIVE: 1,
+    OFFLINE: 2,
+  },
+
+  // Alert Status Lookup IDs
+  ALERT_STATUS: {
+    OPEN: 0,
+    RESOLVED: 1,
+    ACKNOWLEDGED: 2,
+  },
+
+  // Transaction Status Lookup IDs
+  TRANSACTION_STATUS: {
+    ACTIVE: 0,
+    AWAITING_USER_CONFIRMATION: 1,
+    COMPLETED: 2,
+    DISPUTED: 3,
+    CANCELLED: 4,
+    FAILED: 5,
+  },
+
+  // Access Reason Lookup IDs
+  ACCESS_REASON: {
+    OK: 0,
+    DEVICE_OFFLINE: 1,
+    DEVICE_INACTIVE: 2,
+    SESSION_LIMIT_REACHED: 3,
+    DOOR_ALREADY_OPEN: 4,
+    ACTIVE_SESSION_EXISTS: 5,
+  },
+  
+  // Action Type Lookup IDs
+  ACTION_TYPE: {
+    ADD: 0,
+    REMOVE: 1,
+  },
+  
+  // Dispute Reason Lookup IDs
+  DISPUTE_REASON: {
+    WRONG_ITEM: 0,
+    MISSING_ITEM: 1,
+    OTHER: 2,
+  },
+  
+  // Other constants (unchanged)
   SESSION_INIT_TOKEN_EXPIRY_SECONDS: 60,
   DEVICE_OFFLINE_THRESHOLD_MINUTES: 5,
 };

@@ -48,8 +48,8 @@ async function getDeviceTelemetry(req, res, next) {
 async function getDeviceAlerts(req, res, next) {
   try {
     const { device_id } = req.params;
-    const status = req.query.status || null;
-    const alerts = await deviceService.getDeviceAlerts(device_id, status);
+    const status_id = req.query.status_id ? parseInt(req.query.status_id) : null;
+    const alerts = await deviceService.getDeviceAlerts(device_id, status_id);
     res.json(alerts);
   } catch (error) {
     next(error);

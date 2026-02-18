@@ -1,0 +1,7 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model UserRoleLookup {
+  id   Int    @id
+  name String @unique @db.VarChar(50)
+
+  users User[]
+}

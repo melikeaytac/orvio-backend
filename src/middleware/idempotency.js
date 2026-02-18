@@ -1,4 +1,5 @@
 const prisma = require('../config/database');
+const CONSTANTS = require('../config/constants');
 
 // Store for in-memory idempotency check (in production, use Redis or database)
 const processedEvents = new Set();
@@ -41,7 +42,7 @@ async function checkIdempotency(eventId, eventType = 'generic') {
     const existing = await prisma.transaction.findUnique({
       where: { transaction_id: eventId },
     });
-    if (existing && existing.status === 'COMPLETED') {
+    if (existing && existing.status_id === CONSTANTS.TRANSACTION_STATUS.COMPLETED) {
       processedEvents.add(key);
       return true;
     }

@@ -26,7 +26,7 @@ router.use(adminAuth);
  *       content:
  *         application/json:
  *           example:
- *             status: "resolved"
+ *             status_id: 1
  *             message: "Checked device, temperature back to normal."
  *     responses:
  *       200:
@@ -35,7 +35,8 @@ router.use(adminAuth);
  *           application/json:
  *             example:
  *               alert_id: "alert-0001"
- *               status: "RESOLVED"
+ *               status_id: 1
+ *               message: "Checked device, temperature back to normal."
  */
 router.patch('/:alert_id', alertController.updateAlert);
 

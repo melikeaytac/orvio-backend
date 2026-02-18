@@ -4,13 +4,15 @@ model TransactionItem {
   transaction_id      String
   product_id          String
   quantity            Int
-  action_type         String
+  action_type_id      Int
   timestamp           DateTime
   unit_price_at_sale  Decimal  @db.Decimal(10, 2)
 
-  transaction Transaction @relation(fields: [transaction_id], references: [transaction_id])
-  product     Product     @relation(fields: [product_id], references: [product_id])
+  transaction Transaction      @relation(fields: [transaction_id], references: [transaction_id])
+  product     Product          @relation(fields: [product_id], references: [product_id])
+  actionType  ActionTypeLookup @relation(fields: [action_type_id], references: [id])
 
   @@index([transaction_id])
   @@index([product_id])
+  @@index([action_type_id])
 }

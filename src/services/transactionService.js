@@ -23,7 +23,7 @@ async function getTransactionSummary(transactionId) {
     throw new Error('Transaction not found');
   }
   
-  if (transaction.status !== CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION) {
+  if (transaction.status_id !== CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION) {
     throw new Error('Transaction not awaiting confirmation');
   }
   
@@ -55,7 +55,7 @@ async function getTransactionSummary(transactionId) {
     transaction_id: transaction.transaction_id,
     device_id: transaction.device_id,
     device_name: transaction.device.name,
-    status: transaction.status,
+    status_id: transaction.status_id,
     start_time: transaction.start_time,
     end_time: transaction.end_time,
     items,
@@ -80,18 +80,17 @@ async function confirmTransaction(transactionId, confirmedAt) {
     throw new Error('Transaction not found');
   }
   
-  if (transaction.status === CONSTANTS.TRANSACTION_STATUS.COMPLETED) {
+  if (transaction.status_id === CONSTANTS.TRANSACTION_STATUS.COMPLETED) {
     // Already completed - return without re-applying inventory
     return {
       transaction_id: transaction.transaction_id,
-      status: transaction.status,
+      status_id: transaction.status_id,
       inventory_updated: false,
       alerts_created: 0,
       message: 'Transaction already completed',
-    };
-  }
+    };  }
   
-  if (transaction.status !== CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION) {
+  if (transaction.status_id !== CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION) {
     throw new Error('Transaction not awaiting confirmation');
   }
   
@@ -101,7 +100,7 @@ async function confirmTransaction(transactionId, confirmedAt) {
     const updated = await tx.transaction.update({
       where: { transaction_id: transactionId },
       data: {
-        status: CONSTANTS.TRANSACTION_STATUS.COMPLETED,
+        status_id: CONSTANTS.TRANSACTION_STATUS.COMPLETED,
       },
     });
     
@@ -169,7 +168,7 @@ async function confirmTransaction(transactionId, confirmedAt) {
   
   return {
     transaction_id: transaction.transaction_id,
-    status: CONSTANTS.TRANSACTION_STATUS.COMPLETED,
+    status_id: CONSTANTS.TRANSACTION_STATUS.COMPLETED,
     inventory_updated: true,
     alerts_created: result.alertsCreated,
   };
@@ -184,7 +183,7 @@ async function disputeTransaction(transactionId, reason, message, reportedAt) {
     throw new Error('Transaction not found');
   }
   
-  if (transaction.status !== CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION) {
+  if (transaction.status_id !== CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION) {
     throw new Error('Transaction not awaiting confirmation');
   }
   
@@ -192,7 +191,7 @@ async function disputeTransaction(transactionId, reason, message, reportedAt) {
   const updated = await prisma.transaction.update({
     where: { transaction_id: transactionId },
     data: {
-      status: CONSTANTS.TRANSACTION_STATUS.DISPUTED,
+      status_id: CONSTANTS.TRANSACTION_STATUS.DISPUTED,
     },
   });
   
@@ -210,7 +209,7 @@ async function disputeTransaction(transactionId, reason, message, reportedAt) {
   
   return {
     transaction_id: updated.transaction_id,
-    status: updated.status,
+    status_id: updated.status_id,
     reason,
     message,
   };
@@ -233,8 +232,8 @@ async function applyInventoryManually(transactionId) {
     throw new Error('Transaction not found');
   }
   
-  if (transaction.status !== CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION &&
-      transaction.status !== CONSTANTS.TRANSACTION_STATUS.DISPUTED) {
+  if (transaction.status_id !== CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION &&
+      transaction.status_id !== CONSTANTS.TRANSACTION_STATUS.DISPUTED) {
     throw new Error('Transaction cannot have inventory applied');
   }
   
@@ -276,7 +275,7 @@ async function applyInventoryManually(transactionId) {
               timestamp: new Date(),
               alert_type: 'LOW_STOCK',
               message: `Product ${item.product.name} is below critical stock level`,
-              status: CONSTANTS.ALERT_STATUS.OPEN,
+              status_id: CONSTANTS.ALERT_STATUS.OPEN,
             },
           });
           alertsCreated++;
@@ -285,11 +284,11 @@ async function applyInventoryManually(transactionId) {
     }
     
     // Update transaction status if it was disputed
-    if (transaction.status === CONSTANTS.TRANSACTION_STATUS.DISPUTED) {
+    if (transaction.status_id === CONSTANTS.TRANSACTION_STATUS.DISPUTED) {
       await tx.transaction.update({
         where: { transaction_id: transactionId },
         data: {
-          status: CONSTANTS.TRANSACTION_STATUS.COMPLETED,
+          status_id: CONSTANTS.TRANSACTION_STATUS.COMPLETED,
         },
       });
     }

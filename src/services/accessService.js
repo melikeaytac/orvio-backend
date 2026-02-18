@@ -23,7 +23,7 @@ async function processQR(qrData) {
   }
   
   // Check device status
-  if (device.status !== CONSTANTS.DEVICE_STATUS.ACTIVE) {
+  if (device.status_id !== CONSTANTS.DEVICE_STATUS.ACTIVE) {
     return {
       device_id: deviceId,
       access_granted: false,

@@ -1,11 +1,12 @@
 const prisma = require('../config/database');
+const CONSTANTS = require('../config/constants');
 
 async function getDisputedTransactions(adminUserId, isSystemAdmin) {
   if (isSystemAdmin) {
     // System Admin tüm disputed transaction'ları görür
     return prisma.transaction.findMany({
       where: {
-        status: 'DISPUTED',
+        status_id: CONSTANTS.TRANSACTION_STATUS.DISPUTED,
       },
       include: {
         device: true,
@@ -22,7 +23,7 @@ async function getDisputedTransactions(adminUserId, isSystemAdmin) {
   // Normal Admin: Sadece kendine atanmış cihazlardaki disputed transaction'ları görür
   return prisma.transaction.findMany({
     where: {
-      status: 'DISPUTED',
+      status_id: CONSTANTS.TRANSACTION_STATUS.DISPUTED,
       device: {
         deviceAssignments: {
           some: {

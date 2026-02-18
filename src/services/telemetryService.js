@@ -68,7 +68,7 @@ async function evaluateTelemetry(telemetryId) {
           timestamp: new Date(),
           alert_type: 'TEMPERATURE_DEVIATION',
           message: `Temperature deviation detected: ${telemetry.internal_temperature}°C (expected: ${telemetry.device.default_temperature}°C)`,
-          status: CONSTANTS.ALERT_STATUS.OPEN,
+          status_id: CONSTANTS.ALERT_STATUS.OPEN,
         },
       });
       alerts.push(alert);
@@ -96,7 +96,7 @@ async function evaluateTelemetry(telemetryId) {
           timestamp: new Date(),
           alert_type: 'LOCATION_CHANGE',
           message: `Device location changed significantly`,
-          status: CONSTANTS.ALERT_STATUS.OPEN,
+          status_id: CONSTANTS.ALERT_STATUS.OPEN,
         },
       });
       alerts.push(alert);
