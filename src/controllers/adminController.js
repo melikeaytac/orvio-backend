@@ -49,7 +49,7 @@ async function register(req, res, next) {
       password_hash,
       first_name,
       last_name,
-      role_id: 'ADMIN',
+      role_id: USER_ROLE.ADMIN,
       active: true,
     });
     res.status(201).json({

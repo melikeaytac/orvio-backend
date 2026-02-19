@@ -7,18 +7,38 @@ generator client {
   provider = "prisma-client-js"
 }
 // Extracted model fragment; Prisma CLI still needs a merged schema.
+model AccessReasonLookup {
+  id   Int    @id
+  name String @unique @db.VarChar(50)
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model ActionTypeLookup {
+  id   Int    @id
+  name String @unique @db.VarChar(50)
+
+  transactionItems TransactionItem[]
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
 model Alert {
   alert_id   String   @id @default(uuid())
   device_id  String
   timestamp  DateTime
   alert_type String
   message    String   @db.VarChar(500)
-  status     String
+  status_id  Int
 
-  device Cooler @relation(fields: [device_id], references: [device_id])
+  device Cooler           @relation(fields: [device_id], references: [device_id])
+  status AlertStatusLookup @relation(fields: [status_id], references: [id])
 
   @@index([device_id])
-  @@index([status])
+  @@index([status_id])
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model AlertStatusLookup {
+  id   Int    @id
+  name String @unique @db.VarChar(50)
+
+  alerts Alert[]
 }
 // Extracted model fragment; Prisma CLI still needs a merged schema.
 model Brand {
@@ -37,14 +57,15 @@ model Cooler {
   gps_latitude          Decimal? @db.Decimal(10, 8)
   gps_longitude         Decimal? @db.Decimal(10, 8)
   default_temperature   Decimal? @db.Decimal(2, 2)
-  status                String
+  status_id             Int
   last_checkin_time     DateTime
   assigned_admin_id     String?
   door_status           Boolean
   shelf_count           Int
   session_limit         Int
 
-  assignedAdmin User? @relation("CoolerAdmin", fields: [assigned_admin_id], references: [user_id])
+  status        DeviceStatusLookup @relation(fields: [status_id], references: [id])
+  assignedAdmin User?              @relation("CoolerAdmin", fields: [assigned_admin_id], references: [user_id])
 
   inventories       Inventory[]
   transactions      Transaction[]
@@ -53,6 +74,7 @@ model Cooler {
   deviceAssignments DeviceAssignment[]
 
   @@index([assigned_admin_id])
+  @@index([status_id])
 }
 // Extracted model fragment; Prisma CLI still needs a merged schema.
 model DeviceAssignment {
@@ -68,6 +90,18 @@ model DeviceAssignment {
 
   @@index([device_id])
   @@index([admin_user_id])
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model DeviceStatusLookup {
+  id   Int    @id
+  name String @unique @db.VarChar(50)
+
+  coolers Cooler[]
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model DisputeReasonLookup {
+  id   Int    @id
+  name String @unique @db.VarChar(50)
 }
 // Extracted model fragment; Prisma CLI still needs a merged schema.
 model Inventory {
@@ -145,16 +179,18 @@ model Transaction {
   start_time       DateTime
   end_time         DateTime?
   is_active        Boolean
-  status           String
+  status_id        Int
   transaction_type String?
 
-  user   User?   @relation(fields: [user_id], references: [user_id])
-  device Cooler  @relation(fields: [device_id], references: [device_id])
+  user   User?                     @relation(fields: [user_id], references: [user_id])
+  device Cooler                    @relation(fields: [device_id], references: [device_id])
+  status TransactionStatusLookup   @relation(fields: [status_id], references: [id])
 
   items TransactionItem[]
 
   @@index([user_id])
   @@index([device_id])
+  @@index([status_id])
 }
 // Extracted model fragment; Prisma CLI still needs a merged schema.
 model TransactionItem {
@@ -162,33 +198,48 @@ model TransactionItem {
   transaction_id      String
   product_id          String
   quantity            Int
-  action_type         String
+  action_type_id      Int
   timestamp           DateTime
   unit_price_at_sale  Decimal  @db.Decimal(10, 2)
 
-  transaction Transaction @relation(fields: [transaction_id], references: [transaction_id])
-  product     Product     @relation(fields: [product_id], references: [product_id])
+  transaction Transaction      @relation(fields: [transaction_id], references: [transaction_id])
+  product     Product          @relation(fields: [product_id], references: [product_id])
+  actionType  ActionTypeLookup @relation(fields: [action_type_id], references: [id])
 
   @@index([transaction_id])
   @@index([product_id])
+  @@index([action_type_id])
 }
-enum UserRole {
-  ADMIN
-  SYSTEM_ADMIN
-}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model TransactionStatusLookup {
+  id   Int    @id
+  name String @unique @db.VarChar(50)
 
+  transactions Transaction[]
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
 model User {
   user_id       String    @id @default(uuid())
   first_name    String?   @db.VarChar(100)
   last_name     String?   @db.VarChar(100)
   email         String    @unique @db.VarChar(255)
   password_hash String?   @db.VarChar(255)
-  role_id       UserRole  @default(ADMIN) 
+  role_id       Int       @default(0)
   active        Boolean?
   created_at    DateTime?
   updated_at    DateTime?
 
+  role              UserRoleLookup      @relation(fields: [role_id], references: [id])
   assignedCoolers   Cooler[]            @relation("CoolerAdmin")
   transactions     Transaction[]
   deviceAssignments DeviceAssignment[]
+
+  @@index([role_id])
+}
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model UserRoleLookup {
+  id   Int    @id
+  name String @unique @db.VarChar(50)
+
+  users User[]
 }

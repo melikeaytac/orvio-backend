@@ -6,14 +6,16 @@ model Transaction {
   start_time       DateTime
   end_time         DateTime?
   is_active        Boolean
-  status           String
+  status_id        Int
   transaction_type String?
 
-  user   User?   @relation(fields: [user_id], references: [user_id])
-  device Cooler  @relation(fields: [device_id], references: [device_id])
+  user   User?                     @relation(fields: [user_id], references: [user_id])
+  device Cooler                    @relation(fields: [device_id], references: [device_id])
+  status TransactionStatusLookup   @relation(fields: [status_id], references: [id])
 
   items TransactionItem[]
 
   @@index([user_id])
   @@index([device_id])
+  @@index([status_id])
 }

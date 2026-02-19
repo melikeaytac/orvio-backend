@@ -8,7 +8,7 @@ async function startSession(deviceId, startedAt, sessionInitToken, transactionTy
     where: {
       device_id: deviceId,
       is_active: true,
-      status: CONSTANTS.TRANSACTION_STATUS.ACTIVE,
+      status_id: CONSTANTS.TRANSACTION_STATUS.ACTIVE,
     },
   });
   
@@ -21,7 +21,7 @@ async function startSession(deviceId, startedAt, sessionInitToken, transactionTy
     where: { device_id: deviceId },
   });
   
-  if (!device || device.status !== CONSTANTS.DEVICE_STATUS.ACTIVE) {
+  if (!device || device.status_id !== CONSTANTS.DEVICE_STATUS.ACTIVE) {
     throw new Error('Device not active');
   }
   
@@ -32,7 +32,7 @@ async function startSession(deviceId, startedAt, sessionInitToken, transactionTy
       device_id: deviceId,
       start_time: new Date(startedAt),
       is_active: true,
-      status: CONSTANTS.TRANSACTION_STATUS.ACTIVE,
+      status_id: CONSTANTS.TRANSACTION_STATUS.ACTIVE,
       transaction_type: transactionType || 'QR',
     },
   });
@@ -46,7 +46,7 @@ async function startSession(deviceId, startedAt, sessionInitToken, transactionTy
   return {
     transaction_id: transaction.transaction_id,
     device_id: transaction.device_id,
-    status: transaction.status,
+    status_id: transaction.status_id,
     is_active: transaction.is_active,
     start_time: transaction.start_time,
   };
@@ -67,7 +67,7 @@ async function addInteraction(deviceId, transactionId, events) {
     throw new Error('Transaction device mismatch');
   }
   
-  if (transaction.status !== CONSTANTS.TRANSACTION_STATUS.ACTIVE) {
+  if (transaction.status_id !== CONSTANTS.TRANSACTION_STATUS.ACTIVE) {
     throw new Error('Transaction not active');
   }
   
@@ -98,7 +98,7 @@ async function addInteraction(deviceId, transactionId, events) {
       }
       
       // Calculate quantity change
-      const quantityChange = event.action_type === CONSTANTS.ACTION_TYPE.ADD 
+      const quantityChange = event.action_type_id === CONSTANTS.ACTION_TYPE.ADD 
         ? event.quantity 
         : -event.quantity;
       
@@ -130,7 +130,7 @@ async function addInteraction(deviceId, transactionId, events) {
             transaction_id: transactionId,
             product_id: event.product_id,
             quantity: newQuantity,
-            action_type: event.action_type,
+            action_type_id: event.action_type_id,
             timestamp: new Date(event.timestamp),
             unit_price_at_sale: product.unit_price,
           },
@@ -228,7 +228,7 @@ async function endSession(deviceId, transactionId, endedAt) {
     throw new Error('Transaction device mismatch');
   }
   
-  if (transaction.status !== CONSTANTS.TRANSACTION_STATUS.ACTIVE) {
+  if (transaction.status_id !== CONSTANTS.TRANSACTION_STATUS.ACTIVE) {
     throw new Error('Transaction not active');
   }
   
@@ -238,7 +238,7 @@ async function endSession(deviceId, transactionId, endedAt) {
     data: {
       end_time: new Date(endedAt),
       is_active: false,
-      status: CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION,
+      status_id: CONSTANTS.TRANSACTION_STATUS.AWAITING_USER_CONFIRMATION,
     },
   });
   

@@ -1,5 +1,7 @@
 const transactionService = require('../services/transactionService');
 const { checkIdempotency, markAsProcessed } = require('../middleware/idempotency');
+const CONSTANTS = require('../config/constants');
+const prisma = require('../config/database');
 
 async function getTransactionSummary(req, res, next) {
   try {
@@ -40,10 +42,10 @@ async function confirmTransaction(req, res, next) {
       });
       
       // İşlem zaten tamamlanmışsa mükerrer işlem yapma, mevcut sonucu dön
-      if (transaction && transaction.status === 'COMPLETED') {
+      if (transaction && transaction.status_id === CONSTANTS.TRANSACTION_STATUS.COMPLETED) {
         return res.json({
           transaction_id,
-          status: 'COMPLETED',
+          status_id: CONSTANTS.TRANSACTION_STATUS.COMPLETED,
           inventory_updated: false,
           alerts_created: 0,
           message: 'Transaction already confirmed',

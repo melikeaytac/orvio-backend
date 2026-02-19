@@ -5,10 +5,11 @@ model Alert {
   timestamp  DateTime
   alert_type String
   message    String   @db.VarChar(500)
-  status     String
+  status_id  Int
 
-  device Cooler @relation(fields: [device_id], references: [device_id])
+  device Cooler           @relation(fields: [device_id], references: [device_id])
+  status AlertStatusLookup @relation(fields: [status_id], references: [id])
 
   @@index([device_id])
-  @@index([status])
+  @@index([status_id])
 }

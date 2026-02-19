@@ -1,6 +1,6 @@
 const prisma = require('../config/database');
 
-async function updateAlert(alertId, status, message, adminUserId, isSystemAdmin) {
+async function updateAlert(alertId, status_id, message, adminUserId, isSystemAdmin) {
   // Önce alert'i getir
   const alert = await prisma.alert.findUnique({
     where: { alert_id: alertId },
@@ -33,7 +33,7 @@ async function updateAlert(alertId, status, message, adminUserId, isSystemAdmin)
   }
 
   const updateData = {};
-  if (status) updateData.status = status;
+  if (status_id !== undefined) updateData.status_id = status_id;
   if (message) updateData.message = message;
   
   return prisma.alert.update({

@@ -65,10 +65,10 @@ async function getDeviceTelemetry(deviceId, limit = 100) {
   });
 }
 
-async function getDeviceAlerts(deviceId, status = null) {
+async function getDeviceAlerts(deviceId, status_id = null) {
   const where = { device_id: deviceId };
-  if (status) {
-    where.status = status;
+  if (status_id !== null) {
+    where.status_id = status_id;
   }
   
   return prisma.alert.findMany({

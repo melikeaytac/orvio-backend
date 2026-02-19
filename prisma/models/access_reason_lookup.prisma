@@ -1,0 +1,5 @@
+// Extracted model fragment; Prisma CLI still needs a merged schema.
+model AccessReasonLookup {
+  id   Int    @id
+  name String @unique @db.VarChar(50)
+}

@@ -52,10 +52,10 @@ async function addInteraction(req, res, next) {
     
     // Validate each event has required fields
     for (const event of events) {
-      if (!event.event_id || !event.product_id || !event.action_type || !event.timestamp) {
+      if (!event.event_id || !event.product_id || !event.action_type_id || !event.timestamp) {
         return res.status(400).json({
           error: 'Bad Request',
-          message: 'Each event must have event_id, product_id, action_type, and timestamp',
+          message: 'Each event must have event_id, product_id, action_type_id, and timestamp',
         });
       }
     }

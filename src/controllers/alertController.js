@@ -3,11 +3,11 @@ const alertService = require('../services/alertService');
 async function updateAlert(req, res, next) {
   try {
     const { alert_id } = req.params;
-    const { status, message } = req.body;
+    const { status_id, message } = req.body;
     
     const alert = await alertService.updateAlert(
       alert_id, 
-      status, 
+      status_id, 
       message,
       req.adminUser.user_id,
       req.isSystemAdmin

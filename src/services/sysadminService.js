@@ -79,7 +79,7 @@ async function updateDevice(deviceId, deviceData) {
   if (deviceData.gps_latitude !== undefined) updateData.gps_latitude = deviceData.gps_latitude;
   if (deviceData.gps_longitude !== undefined) updateData.gps_longitude = deviceData.gps_longitude;
   if (deviceData.default_temperature !== undefined) updateData.default_temperature = deviceData.default_temperature;
-  if (deviceData.status !== undefined) updateData.status = deviceData.status;
+  if (deviceData.status_id !== undefined) updateData.status_id = deviceData.status_id;
   if (deviceData.assigned_admin_id !== undefined) updateData.assigned_admin_id = deviceData.assigned_admin_id;
   if (deviceData.shelf_count !== undefined) updateData.shelf_count = deviceData.shelf_count;
   if (deviceData.session_limit !== undefined) updateData.session_limit = deviceData.session_limit;
