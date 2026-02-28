@@ -5,11 +5,8 @@ const adminController = require('../controllers/adminController');
 const adminAuth = require('../middleware/adminAuth');
 const transactionController = require('../controllers/transactionController'); 
 
-// All routes below require system admin authentication
-router.use(adminAuth);
-
-// Verify system admin for all routes
-router.use((req, res, next) => {
+// System admin authorization middleware (must be used after adminAuth)
+function requireSystemAdmin(req, res, next) {
   if (!req.isSystemAdmin) {
     return res.status(403).json({
       error: 'Forbidden',
@@ -17,7 +14,10 @@ router.use((req, res, next) => {
     });
   }
   next();
-});
+}
+
+// Compose per-route middleware: authenticate + authorize system admin
+const sysadminAuth = [adminAuth, requireSystemAdmin];
 
 /**
  * @swagger
@@ -43,7 +43,7 @@ router.use((req, res, next) => {
  */
 // Admin management
 // GET /sysadmin/admins
-router.get('/admins', sysadminController.getAllAdmins);
+router.get('/admins', sysadminAuth, sysadminController.getAllAdmins);
 
 /**
  * @swagger
@@ -98,7 +98,7 @@ router.get('/admins', sysadminController.getAllAdmins);
  *               active: true
  */
 // POST /sysadmin/admins
-router.post('/admins', sysadminController.createAdmin);
+router.post('/admins', sysadminAuth, sysadminController.createAdmin);
 
 /**
  * @swagger
@@ -141,10 +141,10 @@ router.post('/admins', sysadminController.createAdmin);
  *         description: Updated admin
  */
 // PATCH /sysadmin/admins/:admin_id
-router.patch('/admins/:admin_id', sysadminController.updateAdmin);
+router.patch('/admins/:admin_id', sysadminAuth, sysadminController.updateAdmin);
 
 // DELETE /sysadmin/admins/:admin_id
-router.delete('/admins/:admin_id', sysadminController.deleteAdmin);
+router.delete('/admins/:admin_id', sysadminAuth, sysadminController.deleteAdmin);
 
 
 
@@ -175,36 +175,7 @@ router.delete('/admins/:admin_id', sysadminController.deleteAdmin);
  *               location_description: "New Store"
  */
 // POST /sysadmin/devices
-router.post('/devices', sysadminController.createDevice);
-
-/**
- * @swagger
- * /devices:
- *   post:
- *     summary: Create a new device
- *     tags: [System Admin]
- *     security:
- *       - AdminToken: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           example:
- *             name: "New Cooler"
- *             serial_number: "SN-123456"
- *             location: "Store #1"
- *     responses:
- *       201:
- *         description: Device created
- *         content:
- *           application/json:
- *             example:
- *               device_id: "dev-0002"
- *               name: "Orvio Cooler #2"
- *               location_description: "New Store"
- */
-// POST /sysadmin/devices
-router.post('/devices', sysadminController.createDevice);
+router.post('/devices', sysadminAuth, sysadminController.createDevice);
 
 /**
  * @swagger
@@ -237,7 +208,7 @@ router.post('/devices', sysadminController.createDevice);
  *               status: "OFFLINE"
  */
 // PATCH /sysadmin/devices/:device_id
-router.patch('/devices/:device_id', sysadminController.updateDevice);
+router.patch('/devices/:device_id', sysadminAuth, sysadminController.updateDevice);
 
 /**
  * @swagger
@@ -260,7 +231,7 @@ router.patch('/devices/:device_id', sysadminController.updateDevice);
  */
 // Assignment management
 // GET /sysadmin/assignments
-router.get('/assignments', sysadminController.getAllAssignments);
+router.get('/assignments', sysadminAuth, sysadminController.getAllAssignments);
 
 /**
  * @swagger
@@ -288,7 +259,7 @@ router.get('/assignments', sysadminController.getAllAssignments);
  *               admin_user_id: "33333333-3333-3333-3333-333333333333"
  */
 // POST /sysadmin/assignments
-router.post('/assignments', sysadminController.createAssignment);
+router.post('/assignments', sysadminAuth, sysadminController.createAssignment);
 
 /**
  * @swagger
@@ -321,7 +292,7 @@ router.post('/assignments', sysadminController.createAssignment);
  *               location: "Store #3"
  */
 // PATCH /sysadmin/assignments/:assignment_id
-router.patch('/assignments/:assignment_id', sysadminController.updateAssignment);
+router.patch('/assignments/:assignment_id', sysadminAuth, sysadminController.updateAssignment);
 
 
 /**
@@ -348,7 +319,7 @@ router.patch('/assignments/:assignment_id', sysadminController.updateAssignment)
  *               brand_name: "Pepsi"
  */
 // POST /sysadmin/brands
-router.post('/brands', sysadminController.createBrand);
+router.post('/brands', sysadminAuth, sysadminController.createBrand);
 
 /**
  * @swagger
@@ -381,7 +352,7 @@ router.post('/brands', sysadminController.createBrand);
  *               brand_name: "Updated Brand Name"
  */
 // PATCH /sysadmin/brands/:brand_id
-router.patch('/brands/:brand_id', sysadminController.updateBrand);
+router.patch('/brands/:brand_id', sysadminAuth, sysadminController.updateBrand);
 
 /**
  * @swagger
@@ -411,7 +382,7 @@ router.patch('/brands/:brand_id', sysadminController.updateBrand);
  *               unit_price: 45.0
  */
 // POST /sysadmin/products
-router.post('/products', sysadminController.createProduct);
+router.post('/products', sysadminAuth, sysadminController.createProduct);
 
 /**
  * @swagger
@@ -444,7 +415,7 @@ router.post('/products', sysadminController.createProduct);
  *               unit_price: 55.0
  */
 // PATCH /sysadmin/products/:product_id
-router.patch('/products/:product_id', sysadminController.updateProduct);
+router.patch('/products/:product_id', sysadminAuth, sysadminController.updateProduct);
 /**
  * @swagger
  * /logs:
@@ -466,7 +437,7 @@ router.patch('/products/:product_id', sysadminController.updateProduct);
  */
 // System logs
 // GET /sysadmin/logs
-router.get('/logs', sysadminController.getSystemLogs);
+router.get('/logs', sysadminAuth, sysadminController.getSystemLogs);
 
 /**
  * @swagger
@@ -501,7 +472,7 @@ router.get('/logs', sysadminController.getSystemLogs);
  */
 // Transaction inventory apply (System Admin only)
 // POST /sysadmin/transactions/:transaction_id/inventory/apply
-router.post('/transactions/:transaction_id/inventory/apply', transactionController.applyInventoryManually);
+router.post('/transactions/:transaction_id/inventory/apply', sysadminAuth, transactionController.applyInventoryManually);
 
 module.exports = router;
 

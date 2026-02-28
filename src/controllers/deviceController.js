@@ -1,13 +1,15 @@
 const deviceService = require('../services/deviceService');
+const { parsePagination } = require('../utils/pagination');
 
 async function getDevices(req, res, next) {
   try {
-    // adminAuth middleware'inden gelen req.adminUser ve req.isSystemAdmin'i kullanıyoruz
-    const devices = await deviceService.getAdminDevices(
+    const { page, limit } = parsePagination(req.query);
+    const result = await deviceService.getAdminDevices(
       req.adminUser.user_id, 
-      req.isSystemAdmin
+      req.isSystemAdmin,
+      { page, limit }
     );
-    res.json(devices);
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -16,8 +18,9 @@ async function getDevices(req, res, next) {
 async function getDeviceInventory(req, res, next) {
   try {
     const { device_id } = req.params;
-    const inventory = await deviceService.getDeviceInventory(device_id);
-    res.json(inventory);
+    const { page, limit } = parsePagination(req.query);
+    const result = await deviceService.getDeviceInventory(device_id, { page, limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -26,9 +29,9 @@ async function getDeviceInventory(req, res, next) {
 async function getDeviceTransactions(req, res, next) {
   try {
     const { device_id } = req.params;
-    const limit = parseInt(req.query.limit) || 100;
-    const transactions = await deviceService.getDeviceTransactions(device_id, limit);
-    res.json(transactions);
+    const { page, limit } = parsePagination(req.query);
+    const result = await deviceService.getDeviceTransactions(device_id, { page, limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -37,9 +40,9 @@ async function getDeviceTransactions(req, res, next) {
 async function getDeviceTelemetry(req, res, next) {
   try {
     const { device_id } = req.params;
-    const limit = parseInt(req.query.limit) || 100;
-    const telemetry = await deviceService.getDeviceTelemetry(device_id, limit);
-    res.json(telemetry);
+    const { page, limit } = parsePagination(req.query);
+    const result = await deviceService.getDeviceTelemetry(device_id, { page, limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -48,9 +51,10 @@ async function getDeviceTelemetry(req, res, next) {
 async function getDeviceAlerts(req, res, next) {
   try {
     const { device_id } = req.params;
+    const { page, limit } = parsePagination(req.query);
     const status_id = req.query.status_id ? parseInt(req.query.status_id) : null;
-    const alerts = await deviceService.getDeviceAlerts(device_id, status_id);
-    res.json(alerts);
+    const result = await deviceService.getDeviceAlerts(device_id, status_id, { page, limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }

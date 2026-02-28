@@ -1,11 +1,13 @@
 const sysadminService = require('../services/sysadminService');
 const { USER_ROLE } = require('../config/constants');
+const { parsePagination } = require('../utils/pagination');
 
 // Admin management
 async function getAllAdmins(req, res, next) {
   try {
-    const admins = await sysadminService.getAllAdmins();
-    res.json(admins);
+    const { page, limit } = parsePagination(req.query);
+    const result = await sysadminService.getAllAdmins({ page, limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -130,8 +132,9 @@ async function updateDevice(req, res, next) {
 // Assignment management
 async function getAllAssignments(req, res, next) {
   try {
-    const assignments = await sysadminService.getAllAssignments();
-    res.json(assignments);
+    const { page, limit } = parsePagination(req.query);
+    const result = await sysadminService.getAllAssignments({ page, limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -279,15 +282,15 @@ async function updateProduct(req, res, next) {
 // System logs
 async function getSystemLogs(req, res, next) {
   try {
+    const { page, limit } = parsePagination(req.query);
     const filters = {
       level: req.query.level,
       startDate: req.query.start_date,
       endDate: req.query.end_date,
-      limit: parseInt(req.query.limit) || 1000,
     };
     
-    const logs = await sysadminService.getSystemLogs(filters);
-    res.json(logs);
+    const result = await sysadminService.getSystemLogs(filters, { page, limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }

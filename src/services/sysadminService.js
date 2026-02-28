@@ -2,6 +2,7 @@ const prisma = require('../config/database');
 const { hashPassword } = require('../utils/bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const { USER_ROLE, DEVICE_STATUS } = require('../config/constants');
+const { paginate } = require('../utils/pagination');
 
 function assertValidLookupId(value, lookup, fieldName) {
   const allowedIds = Object.values(lookup);
@@ -13,13 +14,17 @@ function assertValidLookupId(value, lookup, fieldName) {
   return value;
 }
 
-async function getAllAdmins() {
-  return prisma.user.findMany({
-    where: {
-      role_id: { in: [USER_ROLE.ADMIN, USER_ROLE.SYSTEM_ADMIN] },
+async function getAllAdmins({ page, limit }) {
+  return paginate(
+    prisma.user,
+    {
+      where: {
+        role_id: { in: [USER_ROLE.ADMIN, USER_ROLE.SYSTEM_ADMIN] },
+      },
+      orderBy: { email: 'asc' },
     },
-    orderBy: { email: 'asc' },
-  });
+    { page, limit },
+  );
 }
 
 async function createAdmin(adminData) {
@@ -135,14 +140,18 @@ async function updateDevice(deviceId, deviceData) {
   });
 }
 
-async function getAllAssignments() {
-  return prisma.deviceAssignment.findMany({
-    include: {
-      device: true,
-      admin: true,
+async function getAllAssignments({ page, limit }) {
+  return paginate(
+    prisma.deviceAssignment,
+    {
+      include: {
+        device: true,
+        admin: true,
+      },
+      orderBy: { assigned_at: 'desc' },
     },
-    orderBy: { assigned_at: 'desc' },
-  });
+    { page, limit },
+  );
 }
 
 async function createAssignment(assignmentData) {
@@ -187,42 +196,37 @@ async function updateAssignment(assignmentId, assignmentData) {
 }
 
 // sysadminService.js
-async function getAllBrands(adminUserId, isSystemAdmin) {
-  if (isSystemAdmin) {
-    // System Admin her şeyi görür
-    return prisma.brand.findMany({
-      include: {
-        _count: { select: { products: true } },
-      },
-      orderBy: { brand_name: 'asc' },
-    });
-  }
-
-  // Normal Admin: Sadece kendine atanmış cihazlardaki ürünlerin markalarını görür
-  return prisma.brand.findMany({
-    where: {
-      products: {
-        some: {
-          inventories: {
-            some: {
-              device: {
-                deviceAssignments: {
-                  some: {
-                    admin_user_id: adminUserId,
-                    is_active: true,
+async function getAllBrands(adminUserId, isSystemAdmin, { page, limit }) {
+  const where = isSystemAdmin
+    ? {}
+    : {
+        products: {
+          some: {
+            inventories: {
+              some: {
+                device: {
+                  deviceAssignments: {
+                    some: {
+                      admin_user_id: adminUserId,
+                      is_active: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
+      };
+
+  return paginate(
+    prisma.brand,
+    {
+      where,
+      include: { _count: { select: { products: true } } },
+      orderBy: { brand_name: 'asc' },
     },
-    include: {
-      _count: { select: { products: true } },
-    },
-    orderBy: { brand_name: 'asc' },
-  });
+    { page, limit },
+  );
 }
 
 async function createBrand(brandData) {
@@ -275,7 +279,7 @@ async function updateProduct(productId, productData) {
   });
 }
 
-async function getSystemLogs(filters = {}) {
+async function getSystemLogs(filters = {}, { page, limit }) {
   const where = {};
   
   if (filters.level) where.level = filters.level;
@@ -287,11 +291,14 @@ async function getSystemLogs(filters = {}) {
     };
   }
   
-  return prisma.systemLog.findMany({
-    where,
-    orderBy: { log_date: 'desc' },
-    take: filters.limit || 1000,
-  });
+  return paginate(
+    prisma.systemLog,
+    {
+      where,
+      orderBy: { log_date: 'desc' },
+    },
+    { page, limit },
+  );
 }
 
 module.exports = {

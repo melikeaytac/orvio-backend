@@ -1,12 +1,15 @@
 const brandService = require('../services/brandService');
+const { parsePagination } = require('../utils/pagination');
 
 async function getBrands(req, res, next) {
   try {
-    const brands = await brandService.getAllBrands(
-      req.adminUser.user_id, // adminAuth middleware'inden geliyor
-      req.isSystemAdmin      // adminAuth middleware'inden geliyor
+    const { page, limit } = parsePagination(req.query);
+    const result = await brandService.getAllBrands(
+      req.adminUser.user_id,
+      req.isSystemAdmin,
+      { page, limit }
     );
-    res.json(brands);
+    res.json(result);
   } catch (error) {
     next(error);
   }

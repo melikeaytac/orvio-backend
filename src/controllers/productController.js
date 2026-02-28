@@ -1,12 +1,15 @@
 const productService = require('../services/productService');
+const { parsePagination } = require('../utils/pagination');
 
 async function getProducts(req, res, next) {
   try {
-    const products = await productService.getAllProducts(
-      req.adminUser.user_id, // adminAuth middleware'inden geliyor
-      req.isSystemAdmin      // adminAuth middleware'inden geliyor
+    const { page, limit } = parsePagination(req.query);
+    const result = await productService.getAllProducts(
+      req.adminUser.user_id,
+      req.isSystemAdmin,
+      { page, limit }
     );
-    res.json(products);
+    res.json(result);
   } catch (error) {
     next(error);
   }

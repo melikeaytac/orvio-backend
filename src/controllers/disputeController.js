@@ -1,12 +1,15 @@
 const disputeService = require('../services/disputeService');
+const { parsePagination } = require('../utils/pagination');
 
 async function getDisputedTransactions(req, res, next) {
   try {
-    const disputes = await disputeService.getDisputedTransactions(
+    const { page, limit } = parsePagination(req.query);
+    const result = await disputeService.getDisputedTransactions(
       req.adminUser.user_id,
-      req.isSystemAdmin
+      req.isSystemAdmin,
+      { page, limit }
     );
-    res.json(disputes);
+    res.json(result);
   } catch (error) {
     next(error);
   }
