@@ -57,7 +57,7 @@ model Cooler {
   location_description  String?  @db.VarChar(255)
   gps_latitude          Decimal? @db.Decimal(10, 8)
   gps_longitude         Decimal? @db.Decimal(10, 8)
-  default_temperature   Decimal? @db.Decimal(2, 2)
+  default_temperature   Decimal? @db.Decimal(5, 2)
   status_id             Int
   last_checkin_time     DateTime
   assigned_admin_id     String?
