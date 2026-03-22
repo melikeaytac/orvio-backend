@@ -8,6 +8,7 @@ model Transaction {
   is_active        Boolean
   status_id        Int
   transaction_type String?
+  transaction_details String? @db.Text
 
   user   User?                     @relation(fields: [user_id], references: [user_id])
   device Cooler                    @relation(fields: [device_id], references: [device_id])

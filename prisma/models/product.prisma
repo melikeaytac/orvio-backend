@@ -10,6 +10,7 @@ model Product {
 
   brand            Brand            @relation(fields: [brand_id], references: [brand_id])
   inventories      Inventory[]
+  coolerProducts   CoolerProduct[]
   transactionItems TransactionItem[]
   productBrands    ProductBrand[]
 

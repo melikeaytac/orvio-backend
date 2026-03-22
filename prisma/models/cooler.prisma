@@ -17,6 +17,7 @@ model Cooler {
   assignedAdmin User?              @relation("CoolerAdmin", fields: [assigned_admin_id], references: [user_id])
 
   inventories       Inventory[]
+  coolerProducts    CoolerProduct[]
   transactions      Transaction[]
   telemetries       Telemetry[]
   alerts            Alert[]
