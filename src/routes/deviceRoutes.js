@@ -119,6 +119,27 @@ router.get('/:device_id/telemetry', adminAuth, deviceAccess, deviceController.ge
 
 /**
  * @swagger
+ * /devices/{device_id}/temperature-history:
+ *   get:
+ *     summary: Get historical temperature logs for a device
+ *     tags: [Devices]
+ *     security:
+ *       - AdminToken: []
+ *     parameters:
+ *       - in: path
+ *         name: device_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the device
+ *     responses:
+ *       200:
+ *         description: Historical temperature records
+ */
+router.get('/:device_id/temperature-history', adminAuth, deviceAccess, deviceController.getDeviceTemperatureHistory);
+
+/**
+ * @swagger
  * /devices/{device_id}/alerts:
  *   get:
  *     summary: Get alerts for a device

@@ -8,6 +8,8 @@ model Telemetry {
   gps_longitude        Decimal? @db.Decimal(10, 8)
   door_sensor_status   Boolean
 
+  temperatureHistories TemperatureHistory[]
+
   device Cooler @relation(fields: [device_id], references: [device_id])
 
   @@index([device_id])

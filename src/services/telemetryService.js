@@ -13,23 +13,36 @@ async function recordTelemetry(deviceId, telemetryData) {
 
   const now = new Date();
 
-  const telemetry = await prisma.telemetry.create({
-    data: {
-      device_id: deviceId,
-      timestamp: now,
-      internal_temperature: telemetryData.internal_temperature,
-      gps_latitude: telemetryData.gps_latitude ?? null,
-      gps_longitude: telemetryData.gps_longitude ?? null,
-      door_sensor_status: telemetryData.door_sensor_status,
-    },
-  });
+  const telemetry = await prisma.$transaction(async (tx) => {
+    const createdTelemetry = await tx.telemetry.create({
+      data: {
+        device_id: deviceId,
+        timestamp: now,
+        internal_temperature: telemetryData.internal_temperature,
+        gps_latitude: telemetryData.gps_latitude ?? null,
+        gps_longitude: telemetryData.gps_longitude ?? null,
+        door_sensor_status: telemetryData.door_sensor_status,
+      },
+    });
 
-  await prisma.cooler.update({
-    where: { device_id: deviceId },
-    data: {
-      last_checkin_time: now,
-      door_status: telemetryData.door_sensor_status,
-    },
+    await tx.cooler.update({
+      where: { device_id: deviceId },
+      data: {
+        last_checkin_time: now,
+        door_status: telemetryData.door_sensor_status,
+      },
+    });
+
+    await tx.temperatureHistory.create({
+      data: {
+        device_id: deviceId,
+        timestamp: now,
+        internal_temperature: telemetryData.internal_temperature,
+        source_telemetry_id: createdTelemetry.telemetry_id,
+      },
+    });
+
+    return createdTelemetry;
   });
 
   return {
