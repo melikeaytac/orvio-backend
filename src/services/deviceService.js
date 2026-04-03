@@ -84,6 +84,17 @@ async function getDeviceTelemetry(deviceId, { page, limit }) {
   );
 }
 
+async function getDeviceTemperatureHistory(deviceId, { page, limit }) {
+  return paginate(
+    prisma.temperatureHistory,
+    {
+      where: { device_id: deviceId },
+      orderBy: { timestamp: 'desc' },
+    },
+    { page, limit },
+  );
+}
+
 async function getDeviceAlerts(deviceId, status_id = null, { page, limit }) {
   const where = { device_id: deviceId };
   if (status_id !== null) {
@@ -236,6 +247,7 @@ module.exports = {
   getDeviceInventory,
   getDeviceTransactions,
   getDeviceTelemetry,
+  getDeviceTemperatureHistory,
   getDeviceAlerts,
   getCoolerProducts,
   assignProductToCooler,

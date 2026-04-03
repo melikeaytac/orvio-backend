@@ -20,6 +20,7 @@ model Cooler {
   coolerProducts    CoolerProduct[]
   transactions      Transaction[]
   telemetries       Telemetry[]
+  temperatureHistories TemperatureHistory[]
   alerts            Alert[]
   deviceAssignments DeviceAssignment[]
 
