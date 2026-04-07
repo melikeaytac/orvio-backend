@@ -48,6 +48,17 @@ async function getDeviceTelemetry(req, res, next) {
   }
 }
 
+async function getDeviceTemperatureHistory(req, res, next) {
+  try {
+    const { device_id } = req.params;
+    const { page, limit } = parsePagination(req.query);
+    const result = await deviceService.getDeviceTemperatureHistory(device_id, { page, limit });
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function getDeviceAlerts(req, res, next) {
   try {
     const { device_id } = req.params;
@@ -128,6 +139,7 @@ module.exports = {
   getDeviceInventory,
   getDeviceTransactions,
   getDeviceTelemetry,
+  getDeviceTemperatureHistory,
   getDeviceAlerts,
   getCoolerProducts,
   assignProductToCooler,
