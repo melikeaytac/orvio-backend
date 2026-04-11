@@ -30,6 +30,20 @@ router.get('/', adminAuth, deviceController.getDevices);
 
 /**
  * @swagger
+ * /devices/dashboard/summary:
+ *   get:
+ *     summary: Get aggregated dashboard summary for visible devices
+ *     tags: [Devices]
+ *     security:
+ *       - AdminToken: []
+ *     responses:
+ *       200:
+ *         description: Dashboard summary payload
+ */
+router.get('/dashboard/summary', adminAuth, deviceController.getDashboardSummary);
+
+/**
+ * @swagger
  * /devices/{device_id}/inventory:
  *   get:
  *     summary: Get inventory for a specific device

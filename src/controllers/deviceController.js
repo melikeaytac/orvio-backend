@@ -15,6 +15,15 @@ async function getDevices(req, res, next) {
   }
 }
 
+async function getDashboardSummary(req, res, next) {
+  try {
+    const result = await deviceService.getDashboardSummary(req.adminUser.user_id, req.isSystemAdmin);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function getDeviceInventory(req, res, next) {
   try {
     const { device_id } = req.params;
@@ -136,6 +145,7 @@ async function checkCoolerInventory(req, res, next) {
 
 module.exports = {
   getDevices,
+  getDashboardSummary,
   getDeviceInventory,
   getDeviceTransactions,
   getDeviceTelemetry,

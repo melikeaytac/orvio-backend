@@ -111,6 +111,199 @@ async function getDeviceAlerts(deviceId, status_id = null, { page, limit }) {
   );
 }
 
+function isOnlineStatus(statusName) {
+  if (!statusName) return false;
+  const normalized = String(statusName).toLowerCase();
+  return normalized.includes('online') || normalized.includes('active');
+}
+
+function buildWeeklyData(transactionDates) {
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (6 - index));
+    return date;
+  });
+
+  return days.map((date) => {
+    const dayKey = date.toDateString();
+    const sessions = transactionDates.filter((txnDate) => {
+      const parsed = new Date(txnDate);
+      return !Number.isNaN(parsed.getTime()) && parsed.toDateString() === dayKey;
+    }).length;
+
+    return {
+      day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+      sessions,
+    };
+  });
+}
+
+async function getVisibleDevicesForAdmin(adminUserId, isSystemAdmin) {
+  if (isSystemAdmin) {
+    return prisma.cooler.findMany({
+      select: {
+        device_id: true,
+        name: true,
+        status: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  }
+
+  const assignments = await prisma.deviceAssignment.findMany({
+    where: {
+      admin_user_id: adminUserId,
+      is_active: true,
+    },
+    select: {
+      device: {
+        select: {
+          device_id: true,
+          name: true,
+          status: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return assignments.map((assignment) => assignment.device).filter(Boolean);
+}
+
+async function getDashboardSummary(adminUserId, isSystemAdmin) {
+  const devices = await getVisibleDevicesForAdmin(adminUserId, isSystemAdmin);
+  const deviceIds = devices.map((device) => device.device_id);
+  const deviceNameMap = new Map(devices.map((device) => [device.device_id, device.name || device.device_id]));
+
+  const stats = {
+    totalFridges: devices.length,
+    onlineFridges: devices.filter((device) => isOnlineStatus(device.status?.name)).length,
+    activeSessions: 0,
+    totalAlerts: 0,
+  };
+
+  if (deviceIds.length === 0) {
+    return {
+      stats,
+      recentAlerts: [],
+      recentActivity: [],
+      weeklyData: buildWeeklyData([]),
+    };
+  }
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setDate(endOfToday.getDate() + 1);
+
+  const sevenDaysAgo = new Date(startOfToday);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
+  const [totalAlerts, activeSessions, recentAlertsRaw, recentTransactionsRaw, recentWeekTransactions] = await Promise.all([
+    prisma.alert.count({
+      where: {
+        device_id: { in: deviceIds },
+      },
+    }),
+    prisma.transaction.count({
+      where: {
+        device_id: { in: deviceIds },
+        start_time: {
+          gte: startOfToday,
+          lt: endOfToday,
+        },
+      },
+    }),
+    prisma.alert.findMany({
+      where: {
+        device_id: { in: deviceIds },
+      },
+      orderBy: {
+        timestamp: 'desc',
+      },
+      take: 5,
+      select: {
+        device_id: true,
+        alert_type: true,
+        timestamp: true,
+      },
+    }),
+    prisma.transaction.findMany({
+      where: {
+        device_id: { in: deviceIds },
+      },
+      orderBy: {
+        start_time: 'desc',
+      },
+      take: 6,
+      select: {
+        device_id: true,
+        start_time: true,
+        transaction_type: true,
+        items: {
+          select: {
+            quantity: true,
+            actionType: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.transaction.findMany({
+      where: {
+        device_id: { in: deviceIds },
+        start_time: {
+          gte: sevenDaysAgo,
+        },
+      },
+      select: {
+        start_time: true,
+      },
+    }),
+  ]);
+
+  const recentAlerts = recentAlertsRaw.map((alert) => ({
+    ...alert,
+    fridge: deviceNameMap.get(alert.device_id) || alert.device_id,
+  }));
+
+  const recentActivity = recentTransactionsRaw.map((transaction) => {
+    const items = transaction.items || [];
+    const totalItems = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const actionType = items[0]?.actionType?.name || transaction.transaction_type || null;
+
+    return {
+      device_id: transaction.device_id,
+      fridge: deviceNameMap.get(transaction.device_id) || transaction.device_id,
+      start_time: transaction.start_time,
+      action_type: actionType,
+      item_count: totalItems || items.length || 1,
+    };
+  });
+
+  return {
+    stats: {
+      ...stats,
+      activeSessions,
+      totalAlerts,
+    },
+    recentAlerts,
+    recentActivity,
+    weeklyData: buildWeeklyData(recentWeekTransactions.map((item) => item.start_time)),
+  };
+}
+
 async function getCoolerProducts(deviceId, { page, limit }) {
   const result = await paginate(
     prisma.coolerProduct,
@@ -244,6 +437,7 @@ async function checkCoolerInventoryConsistency(deviceId) {
 
 module.exports = {
   getAdminDevices,
+  getDashboardSummary,
   getDeviceInventory,
   getDeviceTransactions,
   getDeviceTelemetry,
