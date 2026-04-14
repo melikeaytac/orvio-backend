@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
+const adminAuth = require('../middleware/adminAuth');
 /**
  * @swagger
  * /auth/login:
@@ -68,5 +69,21 @@ router.post('/login', adminController.login);
  *         description: Email already registered
  */
 router.post('/register', adminController.register);
+
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     summary: Get the authenticated admin user
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Authenticated user details
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/me', adminAuth, adminController.me);
 
 module.exports = router;
